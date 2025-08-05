@@ -27,23 +27,50 @@ def get_file_processor_agent(model_client, code_executor) -> AssistantAgent:
         A configured AssistantAgent ready to process files.
     """
 
-    def parse_unstructured_text_tool(unstructured_text: str) -> str:
+    def parse_unstructured_text_tool(unstructured_text: str) -> dict:
         """
         A synchronous wrapper for the async 'parse_unstructured_text' tool.
         This tool parses unstructured text from a PDF by orchestrating a sub-conversation
         between a code-writing agent and a code-executing agent.
         """
-        # This wrapper makes the async tool callable by the agent.
-        return asyncio.run(
+         # Get the result from the async function
+        result = asyncio.run(
             parse_unstructured_text(unstructured_text, model_client, code_executor)
         )
+        
+        # Check if result is already a dictionary with a 'content' field
+        if isinstance(result, dict) and 'content' in result:
+            # If so, just add the source field
+            result['source'] = "parse_unstructured_text_tool"
+            return result
+        else:
+            # Otherwise, wrap it in a dictionary with both fields
+            return {
+                "content": result,
+                "source": "parse_unstructured_text_tool"
+            }
+        # # This wrapper makes the async tool callable by the agent.
+        # return asyncio.run(
+        #     parse_unstructured_text(unstructured_text, model_client, code_executor)
+        # )
+    
+        # This wrapper makes the async tool callable by the agent.
+        # json_string_result = asyncio.run(
+        #     parse_unstructured_text(unstructured_text, model_client, code_executor)
+        # )
+        
+        # # This is the crucial change: wrap the result in a dictionary with 'content' and 'source'
+        # return {
+        #     "content": json_string_result,
+        #     "source": "parse_unstructured_text_tool", # You can put a more descriptive name here if you want
+        # }
 
     # Create a list of all tools for the agent.
     # The wrapper function now has a clear name for the agent to use.
     tools_list = [
         parse_csv_file,
         extract_text_from_pdf,
-        parse_unstructured_text_tool,
+        parse_unstructured_text_tool
         # standardize_data 
     ]
 

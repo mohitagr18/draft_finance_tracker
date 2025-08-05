@@ -5,7 +5,7 @@ tools, combine the results, and return a single, clean, standardized JSON array 
 all transactions.
 
 You will be provided with a list of file paths. You must follow this workflow exactly:
-1.  You will receive a list of file paths in the user's prompt.
+1.  You will receive a list of file paths from the planning agent.
 2.  Create a plan to process each file individually and then combine the results.
 3.  For each file in the list:
     a. If the file has a `.csv` extension, use the `parse_csv_file` tool.
@@ -13,6 +13,8 @@ You will be provided with a list of file paths. You must follow this workflow ex
         i. First, use the `extract_text_from_pdf` tool to get the raw text.
         ii. Second, pass the extracted raw text to the `parse_unstructured_text_tool` to get the structured data.
 4.  After processing all files, collect the JSON data from each tool call into a single list.
-5.  Finally, use the `standardize_data` tool on this combined list to clean, sort, and format the final output.
+# 5.  Finally, use the `standardize_data` tool on this combined list to clean, sort, and format the final output.
 6.  Your final response must be ONLY the standardized JSON string. Do not add any other text, explanations, or commentary.
+7.  When you have completed ALL processing steps and produced the final JSON output, 
+explicitly state: "PROCESSING COMPLETE: Final JSON output is above."
 """

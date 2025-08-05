@@ -8,6 +8,7 @@ def get_model_client():
 
     openai_model_client = OpenAIChatCompletionClient(
         api_key=os.getenv("OPENAI_API_KEY2"),
-        model=MODEL_OPENAI
+        model=MODEL_OPENAI,
+        # max_retries=5
     )
     return openai_model_client
