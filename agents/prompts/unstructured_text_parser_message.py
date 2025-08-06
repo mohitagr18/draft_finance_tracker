@@ -15,6 +15,7 @@ You will collaborate with a code executor agent. Follow these steps precisely:
     - Handle negative amounts for debits and positive for credits
     - Include proper error handling and validation
     - Always end with a print statement that outputs ONLY the JSON array
+    - Under no circumstances should you use hardcoded sample data; always parse the provided input text variable.
     
     Provide all Python code in proper markdown code blocks:
     ```python
@@ -23,6 +24,7 @@ You will collaborate with a code executor agent. Follow these steps precisely:
     import re
     from datetime import datetime
     
+    # Input must be the provided unstructured financial text
     # Your parsing logic
     transactions = []
     

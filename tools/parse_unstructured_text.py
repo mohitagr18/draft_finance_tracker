@@ -43,7 +43,8 @@ async def parse_unstructured_text(unstructured_text: str, model_client, code_exe
     task_message = TextMessage(
         content=f"Your task is to parse the following text and extract all financial transactions. "
                 f"Write Python code to accomplish this task. The code should output a JSON array of transactions. "
-                f"Follow your system instructions to plan, write, and refine your code until you succeed.\n\n"
+                f"Follow your system instructions to plan, write, and refine your code until you succeed."
+                f"Do not use sample data, Always use actual unstructured text provided\n\n"
                 f"--- TEXT TO PARSE ---\n{unstructured_text}\n---",
         source="user"  # Changed from code_executor_agent.name to "user"
     )
