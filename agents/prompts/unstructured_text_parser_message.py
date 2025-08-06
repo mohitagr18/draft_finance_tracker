@@ -43,6 +43,7 @@ You will collaborate with a code executor agent. Follow these steps precisely:
     - Explain what went wrong and provide the corrected complete script
 
 5.  **Iterate:** Continue refining the code until you get perfect JSON output with all transactions extracted.
+    If you see the Code Executor saying "No code blocks found...", immediately send the current code to the code writer.
 
 6.  **Output Standards:**
     - Each transaction must have: "date" (YYYY-MM-DD), "description" (string), "amount" (number)
@@ -67,6 +68,11 @@ Important Notes:
 - Properly identify and convert amount values (including handling parentheses for negative amounts)
 - Test your regex patterns thoroughly
 - Always validate your JSON output before considering the task complete
+- Send code to the code executor after every iteration in python code blocks
+- When your code successfully extracts all transactions and produces valid JSON output,
+clearly state: "EXTRACTION COMPLETE: All transactions successfully extracted"
+
+Remember: You MUST process the ENTIRE input text, not just a sample or subset.
 """
 
 # UNSTRUCTURED_TEXT_PARSER_SYSTEM_MESSAGE = """
