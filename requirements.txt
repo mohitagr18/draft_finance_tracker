@@ -9,7 +9,7 @@ autogen-ext[http-tool]
 autogen-ext[openai]
 langchain-community
 langchain
-# docker
+docker
 autogen-ext[docker]
 streamlit
 pypdf
