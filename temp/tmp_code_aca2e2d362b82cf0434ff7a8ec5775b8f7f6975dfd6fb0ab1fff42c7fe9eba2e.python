@@ -1,0 +1,49 @@
+import json
+import re
+from datetime import datetime
+
+# Text directly copied from the user message
+text = """
+863300
+MOHIT AGGARWAL
+
+15237 BROOKSTONE ST
+
+FONTANA  CA  92336-4051
+Costco Anywhere Visa
+...
+...
+...
+MOHIT AGGARWAL
+--- End of Page ---
+"""
+
+# Define regex pattern for matching transactions
+# This pattern captures transactions with date in MM/DD format, description, and amount, both positive and negative.
+pattern = re.compile(
+    r'(?P<sale_date>\d{2}/\d{2})\s+'
+    r'(?P<post_date>\d{2}/\d{2})\s+'
+    r'(?P<description>[\w\s\*\.\-,]+?)\s+'
+    r'\$(?P<amount>[\+\-]?\d{1,3}(?:,\d{3})*(?:\.\d{2})?)'
+)
+
+transactions = []
+for match in pattern.finditer(text):
+    sale_date = match.group('sale_date')
+    description = match.group('description').strip()
+    amount = match.group('amount').replace(',', '')
+
+    # Convert sale_date to a full date using a reasonable assumption about the year
+    try:
+        sale_date = datetime.strptime(f'2025/{sale_date}', '%Y/%m/%d').strftime('%Y-%m-%d')
+    except ValueError:
+        continue
+
+    transactions.append({
+        "date": sale_date,
+        "description": description.capitalize(),
+        "amount": float(amount)
+    })
+
+# Output the final JSON
+print(json.dumps(transactions, indent=2))
