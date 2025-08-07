@@ -31,7 +31,8 @@ from typing import Dict, Any, List, Optional, Sequence
 from autogen_agentchat.agents import AssistantAgent, CodeExecutorAgent
 from autogen_agentchat.teams import RoundRobinGroupChat
 from autogen_agentchat.messages import TextMessage
-from autogen_core._cancellation_token import CancellationToken
+# from autogen_core import CancellationToken
+from autogen_agentchat.conditions import MaxMessageTermination, TextMentionTermination
 from autogen_ext.code_executors.local import LocalCommandLineCodeExecutor
 from dotenv import load_dotenv
 
@@ -263,7 +264,8 @@ Let's begin the structured data extraction process!
         print("📋 Team workflow: DataExtractor → CodeGenerator → CodeExecutor → QualityAssurance")
         
         # Run the team with the initial message
-        result = await team.run(task=initial_message, cancellation_token=CancellationToken())
+        result = await team.run(task=initial_message, 
+                                termination_condition=TextMentionTermination("TERMINATE"))
         
         return {
             "success": True,
