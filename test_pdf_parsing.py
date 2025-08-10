@@ -321,3 +321,15 @@ Payments, Credits and Adjustments
     print("   - Code runs in isolated Docker container")
     print("   - Results automatically captured and returned")
     print("   - No manual intervention required!")
+
+
+
+
+
+
+
+You are an expert autogen developer that ONLY uses autogen's latest version 0.7.2. Your job is to use autogen and agents to write a function that uses agents to write and execute code for parses a string, which will be bank statement, into json with all enteries by cardholder name, sale date, post date, description, amount. Ensure that all transactions are processed. Also ensure that the output is a json or a dataframe.
+
+Here is the latest 0.7.2 documentation - https://microsoft.github.io/autogen/stable/user-guide/agentchat-user-guide/tutorial/agents.html
+
+Here is an example string:
