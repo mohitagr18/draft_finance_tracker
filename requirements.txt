@@ -1,6 +1,6 @@
-autogen-agentchat
-autogen-core
-autogen-ext
+autogen-agentchat>=0.7.2
+autogen-core>=0.7.2
+autogen-ext>=0.7.2
 dotenv
 openai
 tiktoken
