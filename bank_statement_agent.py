@@ -11,6 +11,7 @@ from autogen_agentchat.conditions import MaxMessageTermination
 from autogen_agentchat.messages import TextMessage
 from autogen_ext.code_executors.local import LocalCommandLineCodeExecutor
 from autogen_ext.code_executors.docker import DockerCommandLineCodeExecutor
+from autogen_agentchat.ui import Console
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -79,7 +80,11 @@ async def run_parsing_agent():
         source="user"
     )
 
-    result = await team.run(task=task)
+    result = await Console(team.run_stream(task=task))
+    # result = await team.run(task=task)
+    # result = team.run_stream(task=task)
+    # async for message in result:
+    #     print(message)
 
     # Stop executor safely
     await code_executor.stop()
