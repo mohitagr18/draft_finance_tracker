@@ -1,0 +1,16 @@
+autogen-agentchat>=0.7.2
+autogen-core>=0.7.2
+autogen-ext>=0.7.2
+dotenv
+openai
+tiktoken
+ipykernel
+autogen-ext[http-tool]
+autogen-ext[openai]
+langchain-community
+langchain
+docker
+autogen-ext[docker]
+streamlit
+pypdf
+pandas
