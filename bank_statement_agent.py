@@ -14,7 +14,7 @@ from dotenv import load_dotenv
 load_dotenv()
 # === CONFIGURATION ===
 BANK_STATEMENT_FILE = "temp/statement.txt"  # Text file containing raw statement
-OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-4o")  # Or gpt-4, gpt-4o-mini, etc.
+OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-4.1-mini")  # Or gpt-4, gpt-4o-mini, etc.
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY2")  # Must be set in your environment
 
 if not OPENAI_API_KEY:
