@@ -68,9 +68,48 @@ async def run_parsing_agent():
         code_executor=code_executor
     )
 
+    # --- NEW: Categorizer Agent ---
+    categorizer_agent = AssistantAgent(
+        name="categorizer",
+        model_client=model_client,
+        system_message=(
+    "You are an AI financial analyst. Your purpose is to categorize financial transactions "
+    "into a few broad categories.\n\n"
+    "You will receive a JSON object that contains:\n"
+    "1. 'transactions_by_cardholder': a dictionary where each key is a cardholder name and "
+    "   the value is a list of transaction objects.\n"
+    "2. 'summary': a dictionary with account summary data.\n\n"
+    "Your job:\n"
+    "- Return the exact same JSON object structure.\n"
+    "- Do NOT remove or rename any keys.\n"
+    "- Do NOT modify the 'summary' section.\n"
+    "- Inside 'transactions_by_cardholder', for each transaction object, add a new key-value "
+    "  pair: \"category\": \"Category Name\".\n\n"
+    "CRITICAL RULES:\n"
+    "Use ONLY the 6 categories defined below.\n"
+    "For payments, refunds, and fees, use the Financial Transactions category.\n"
+    "If a description is too vague, use Uncategorized.\n\n"
+    "CATEGORY DEFINITIONS:\n"
+    "Food & Dining: All food-related spending. This includes both groceries from supermarkets "
+    "and purchases from restaurants, cafes, bars, and food delivery services.\n"
+    "Merchandise & Services: A broad category for general shopping and personal care. "
+    "This includes retail stores, online marketplaces (like Amazon), electronics, clothing, "
+    "hobbies, entertainment, streaming services (Netflix), gym memberships, and drugstores (CVS).\n"
+    "Bills & Subscriptions: Recurring charges for essential services. This primarily includes "
+    "utilities (phone, internet) and insurance payments.\n"
+    "Travel & Transportation: Costs for getting around. This includes daily transport (gas stations, "
+    "Uber, public transit) and long-distance travel (airlines, hotels, rental cars).\n"
+    "Financial Transactions: All non-spending activities that affect your balance. This includes "
+    "payments made to your account, refunds from merchants, statement credits, and any fees or interest charges.\n"
+    "Uncategorized: For any transaction that does not clearly fit into the categories above.\n"
+    ),
+        reflect_on_tool_use=False
+    )
+
+
     # Round-robin chat between assistant and executor
     team = RoundRobinGroupChat(
-        participants=[assistant, executor_agent],
+        participants=[assistant, executor_agent, categorizer_agent],
         termination_condition=MaxMessageTermination(30)
     )
 
@@ -148,7 +187,12 @@ async def run_parsing_agent():
             continue
 
         # direct JSON candidate in executor output or fenced block
-        if src == "executor":
+        if src == "categorizer":
+            parsed_json = extract_json_from_text(content_str)
+            if parsed_json is not None:
+                return parsed_json
+
+        elif src == "executor":
             parsed_json = extract_json_from_text(content_str)
             if parsed_json is not None:
                 return parsed_json
