@@ -3,200 +3,158 @@ import os
 import asyncio
 import json
 import re
-import logging
 from autogen_ext.models.openai import OpenAIChatCompletionClient
+from autogen_ext.models.anthropic import AnthropicChatCompletionClient
 from autogen_agentchat.agents import AssistantAgent, CodeExecutorAgent
 from autogen_agentchat.teams import RoundRobinGroupChat
-from autogen_agentchat.conditions import MaxMessageTermination
+from autogen_agentchat.conditions import MaxMessageTermination, TextMentionTermination
+from autogen_agentchat.base import TerminationCondition
+from autogen_agentchat.messages import BaseAgentEvent, BaseChatMessage, StopMessage
+from typing import Sequence
 from autogen_agentchat.messages import TextMessage
+from autogen_ext.code_executors.local import LocalCommandLineCodeExecutor
 from autogen_ext.code_executors.docker import DockerCommandLineCodeExecutor
 from autogen_agentchat.ui import Console
 from dotenv import load_dotenv
-
-# Set up logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.FileHandler("autogen_process.log"),
-        logging.StreamHandler()
-    ]
-)
-logger = logging.getLogger("bank_statement_parser")
 
 load_dotenv()
 
 # === CONFIGURATION ===
 BANK_STATEMENT_FILE = "temp/statement.txt"  # Text file containing raw statement
-OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-4.1-mini")  # Default model
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY2")  # Must be set in your .env
+ANTHROPIC_MODEL = os.getenv("ANTHROPIC_MODEL", "claude-sonnet-4-20250514")  # Default model
+ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY")  # Must be set in your .env
 
-if not OPENAI_API_KEY:
-    raise EnvironmentError("Please set the OPENAI_API_KEY2 environment variable.")
+if not ANTHROPIC_API_KEY:
+    raise EnvironmentError("Please set the ANTHROPIC_API_KEY environment variable.")
 
 # === Helper to read statement text ===
 def load_statement(file_path: str) -> str:
     with open(file_path, "r", encoding="utf-8") as f:
         return f.read()
 
-# Improved JSON extraction logic
-def extract_json_from_text(text):
-    """Extract JSON from text with multiple fallback strategies."""
+# ----------------------------
+# Robust JSON extraction logic
+# ----------------------------
+def extract_json_from_text(text: str):
+    """Return parsed JSON object found in text or None."""
     if not text or not isinstance(text, str):
         return None
-    
-    # Strategy 1: Direct parsing if it looks like JSON
-    text_clean = text.strip()
-    if text_clean.startswith("{") and text_clean.endswith("}"):
+
+    # strip common code fences
+    text2 = re.sub(r"```(?:json|python)?", "", text, flags=re.IGNORECASE)
+
+    # Try quick parse if text is (mostly) JSON
+    stripped = text2.strip()
+    if stripped.startswith("{") and stripped.endswith("}"):
         try:
-            return json.loads(text_clean)
-        except json.JSONDecodeError:
+            return json.loads(stripped)
+        except Exception:
             pass
-    
-    # Strategy 2: Remove markdown code fences
-    text_no_markdown = re.sub(r"```(?:json|python)?", "", text, flags=re.IGNORECASE)
-    text_no_markdown = text_no_markdown.strip()
-    if text_no_markdown.startswith("{") and text_no_markdown.endswith("}"):
-        try:
-            return json.loads(text_no_markdown)
-        except json.JSONDecodeError:
-            pass
-    
-    # Strategy 3: Find balanced JSON objects
-    def find_json_objects(text):
-        results = []
-        stack = []
-        start = -1
-        
-        for i, char in enumerate(text):
-            if char == '{':
-                if not stack:
-                    start = i
-                stack.append(char)
-            elif char == '}':
-                if stack and stack[-1] == '{':
-                    stack.pop()
-                    if not stack:  # We've found a complete JSON object
-                        try:
-                            json_str = text[start:i+1]
-                            obj = json.loads(json_str)
-                            results.append(obj)
-                        except json.JSONDecodeError:
-                            pass
-        
-        return results
-    
-    json_objects = find_json_objects(text)
-    
-    # Return the largest JSON object that has transactions_by_cardholder
-    valid_jsons = [obj for obj in json_objects if isinstance(obj, dict) and "transactions_by_cardholder" in obj]
-    if valid_jsons:
-        # Sort by size (number of transactions)
-        valid_jsons.sort(key=lambda x: sum(len(txs) for txs in x["transactions_by_cardholder"].values()), reverse=True)
-        return valid_jsons[0]
-    
-    # If we found any JSON objects at all, return the largest one
-    if json_objects:
-        largest = max(json_objects, key=lambda x: len(json.dumps(x)))
-        return largest
-    
+
+    # Find first balanced {...} substring and try parsing progressively
+    start = text2.find("{")
+    while start != -1:
+        depth = 0
+        for i in range(start, len(text2)):
+            ch = text2[i]
+            if ch == "{":
+                depth += 1
+            elif ch == "}":
+                depth -= 1
+                if depth == 0:
+                    candidate = text2[start:i+1]
+                    # try parse
+                    try:
+                        return json.loads(candidate)
+                    except Exception:
+                        # parsing failed; continue searching for next '{'
+                        break
+        start = text2.find("{", start + 1)
     return None
 
-# Verification function
-def verify_categorized_json(json_data, original_json):
-    """Verify that the categorized JSON has all the data from the original."""
-    if not json_data or not isinstance(json_data, dict):
-        return False
+# ----------------------------
+# Custom Termination condition classes (following Autogen 0.7.2 pattern)
+# ----------------------------
+class JSONSuccessTermination(TerminationCondition):
+    """Terminates when valid JSON is found in executor output."""
     
-    # Check for transactions_by_cardholder
-    if "transactions_by_cardholder" not in json_data:
-        return False
+    def __init__(self):
+        self._terminated = False
     
-    # Check that we have the same cardholders
-    if set(json_data["transactions_by_cardholder"].keys()) != set(original_json["transactions_by_cardholder"].keys()):
-        return False
+    @property
+    def terminated(self) -> bool:
+        return self._terminated
     
-    # Check that we have at least the same number of transactions
-    for cardholder in original_json["transactions_by_cardholder"]:
-        if len(json_data["transactions_by_cardholder"].get(cardholder, [])) < len(original_json["transactions_by_cardholder"][cardholder]):
-            return False
+    async def __call__(self, messages: Sequence[BaseAgentEvent | BaseChatMessage]) -> StopMessage | None:
+        if self._terminated:
+            return None
+            
+        # Check the messages for executor output with valid JSON
+        for msg in reversed(messages[-3:]):  # Check last 3 messages
+            if getattr(msg, "source", "") == "executor":
+                content = getattr(msg, "content", "")
+                if extract_json_from_text(content) is not None:
+                    self._terminated = True
+                    return StopMessage(
+                        content="Valid JSON found in executor output.",
+                        source="JSONSuccessTermination"
+                    )
+        return None
     
-    # Check that categories were added
-    has_categories = False
-    for cardholder, transactions in json_data["transactions_by_cardholder"].items():
-        if transactions and any("category" in tx for tx in transactions):
-            has_categories = True
-            break
-    
-    return has_categories
+    async def reset(self) -> None:
+        self._terminated = False
 
-# Retry logic for categorizer
-async def run_categorizer_with_retry(categorizer_agent, parsed_json, max_retries=3):
-    """Run the categorizer with retry logic to handle intermittent failures."""
-    for attempt in range(max_retries):
-        try:
-            logger.info(f"Categorization attempt {attempt+1}/{max_retries}...")
-            
-            categorizer_task = TextMessage(
-                content=(
-                    f"I need you to categorize all transactions in this JSON data:\n\n"
-                    f"{json.dumps(parsed_json, indent=2)}\n\n"
-                    f"IMPORTANT INSTRUCTIONS:\n"
-                    f"1. Add a 'category' field to EACH transaction using ONLY the 6 predefined categories.\n"
-                    f"2. Return the COMPLETE JSON with all data preserved.\n"
-                    f"3. Your response should be ONLY the JSON - no explanations or code fences.\n"
-                    f"4. Ensure your response is valid JSON that can be parsed directly."
-                ),
-                source="user"
-            )
-            
-            categorizer_team = RoundRobinGroupChat(
-                participants=[categorizer_agent],
-                termination_condition=MaxMessageTermination(3)
-            )
-            
-            categorization_result = await categorizer_team.run(task=categorizer_task)
-            
-            # Extract JSON from the result
-            for msg in categorization_result.messages:
-                if getattr(msg, "source", "") == "categorizer":
-                    content = getattr(msg, "content", "")
-                    try:
-                        # Try direct parsing first
-                        content_cleaned = content.strip()
-                        if content_cleaned.startswith("{") and content_cleaned.endswith("}"):
-                            result = json.loads(content_cleaned)
-                            if result and "transactions_by_cardholder" in result:
-                                # Verify categories were added
-                                has_categories = False
-                                for cardholder, transactions in result["transactions_by_cardholder"].items():
-                                    if transactions and any("category" in tx for tx in transactions):
-                                        has_categories = True
-                                        break
-                                
-                                if has_categories:
-                                    logger.info(f"Successfully categorized on attempt {attempt+1}")
-                                    return result
-                    except json.JSONDecodeError:
-                        pass
-            
-            logger.warning(f"Attempt {attempt+1} failed to produce valid categorized JSON")
-            
-        except Exception as e:
-            logger.error(f"Error in categorization attempt {attempt+1}: {str(e)}")
+def has_categories(json_obj) -> bool:
+    """Check if JSON contains categorized transactions."""
+    try:
+        transactions_by_cardholder = json_obj.get("transactions_by_cardholder", {})
+        for cardholder, transactions in transactions_by_cardholder.items():
+            if isinstance(transactions, list) and len(transactions) > 0:
+                # Check if at least one transaction has a category
+                for transaction in transactions:
+                    if isinstance(transaction, dict) and "category" in transaction:
+                        return True
+        return False
+    except Exception:
+        return False
+
+class CategorizationSuccessTermination(TerminationCondition):
+    """Terminates when categorized JSON is found in categorizer output."""
     
-    # If all retries fail, return the original JSON
-    logger.warning("All categorization attempts failed. Returning original JSON.")
-    return parsed_json
+    def __init__(self):
+        self._terminated = False
+    
+    @property
+    def terminated(self) -> bool:
+        return self._terminated
+    
+    async def __call__(self, messages: Sequence[BaseAgentEvent | BaseChatMessage]) -> StopMessage | None:
+        if self._terminated:
+            return None
+            
+        # Check the messages for categorizer output with valid JSON containing categories
+        for msg in reversed(messages[-2:]):  # Check last 2 messages
+            if getattr(msg, "source", "") == "categorizer":
+                content = getattr(msg, "content", "")
+                parsed_json = extract_json_from_text(content)
+                if parsed_json and has_categories(parsed_json):
+                    self._terminated = True
+                    return StopMessage(
+                        content="Categorized JSON found in categorizer output.",
+                        source="CategorizationSuccessTermination"
+                    )
+        return None
+    
+    async def reset(self) -> None:
+        self._terminated = False
 
 async def run_parsing_agent():
     statement_text = load_statement(BANK_STATEMENT_FILE)
-    
+
     # Create the model client
-    model_client = OpenAIChatCompletionClient(
-        model=OPENAI_MODEL, api_key=OPENAI_API_KEY
-    )
-    
+    model_client = AnthropicChatCompletionClient(
+        model=ANTHROPIC_MODEL, api_key=ANTHROPIC_API_KEY)
+
     # Assistant agent: writes code to parse the statement
     assistant = AssistantAgent(
         name="assistant",
@@ -213,150 +171,169 @@ async def run_parsing_agent():
             "3. Ensure transactions for all cardholders are captured correctly. It is very rare to have no transactions for a cardholder if there are multiple card holders.\n"
             "4. Prints **only** the JSON via `print(json.dumps(parsed, ensure_ascii=False))`.\n"
             "5. IMPORTANT: The variable `statement_text` is already defined - just use it directly.\n"
-            "Do not output any explanation or extra text."
+            "Do not output any explanation or extra text. Once the JSON is successfully printed, "
+            "you are done - do not continue the conversation."
         ),
         reflect_on_tool_use=True
     )
-    
-    # Docker executor for running the code
+
+    # Code executor
     code_executor = DockerCommandLineCodeExecutor(work_dir="temp")
     await code_executor.start()
-    
+
     # Code execution agent
     executor_agent = CodeExecutorAgent(
         name="executor",
         code_executor=code_executor
     )
-    
-    # Categorizer Agent with improved instructions
+
+    # --- Categorizer Agent ---
     categorizer_agent = AssistantAgent(
         name="categorizer",
         model_client=model_client,
         system_message=(
             "You are an AI financial analyst. Your purpose is to categorize financial transactions "
             "into a few broad categories.\n\n"
-            "You will receive a JSON object that contains transaction data. Your task is CRITICAL:\n"
-            "1. First, ensure you can see the full JSON with all transactions. If it appears incomplete, "
-            "   respond with 'INCOMPLETE DATA' and nothing else.\n"
-            "2. Add a 'category' field to EACH transaction in the 'transactions_by_cardholder' section.\n"
-            "3. Return the COMPLETE JSON with all original data preserved and categories added.\n\n"
-            "CRITICAL FORMATTING RULES:\n"
-            "- Your response MUST be valid JSON that can be parsed directly.\n"
-            "- Do NOT include markdown code fences (```json).\n"
-            "- Do NOT include ANY explanatory text before or after the JSON.\n"
-            "- Return ONLY the JSON object.\n\n"
+            "You will receive a JSON object that contains:\n"
+            "1. 'transactions_by_cardholder': a dictionary where each key is a cardholder name and "
+            "   the value is a list of transaction objects.\n"
+            "2. 'summary': a dictionary with account summary data.\n\n"
+            "Your job:\n"
+            "- Return the exact same JSON object structure.\n"
+            "- Do NOT remove or rename any keys.\n"
+            "- Do NOT modify the 'summary' section.\n"
+            "- Inside 'transactions_by_cardholder', for each transaction object, add a new key-value "
+            "  pair: \"category\": \"Category Name\".\n\n"
+            "CRITICAL RULES:\n"
+            "Use ONLY the 6 categories defined below.\n"
+            "For payments, refunds, and fees, use the Financial Transactions category.\n"
+            "If a description is too vague, use Uncategorized.\n\n"
             "CATEGORY DEFINITIONS:\n"
-            "Food & Dining: All food-related spending including groceries, restaurants, cafes, food delivery.\n"
-            "Merchandise & Services: Retail stores, online shopping, electronics, clothing, entertainment.\n"
-            "Bills & Subscriptions: Utilities, phone, internet, insurance, recurring services.\n"
+            "Food & Dining: All food-related spending. This includes both groceries from supermarkets "
+            "and purchases from restaurants, cafes, bars, and food delivery services.\n"
+            "Merchandise & Services: A broad category for general shopping and personal care. "
+            "This includes retail stores, online marketplaces (like Amazon), electronics, clothing, "
+            "hobbies, entertainment, streaming services (Netflix), gym memberships, and drugstores (CVS).\n"
+            "Bills & Subscriptions: Recurring charges for essential services. This primarily includes "
+            "utilities (phone, internet) and insurance payments.\n"
             "Travel & Transportation: Costs for getting around. This includes daily transport (gas stations, "
             "Uber, public transit) and long-distance travel (airlines, hotels, rental cars).\n"
-            "Financial Transactions: Payments to account, refunds, statement credits, fees, interest.\n"
-            "Uncategorized: Transactions that don't clearly fit the above categories.\n"
+            "Financial Transactions: All non-spending activities that affect your balance. This includes "
+            "payments made to your account, refunds from merchants, statement credits, and any fees or interest charges.\n"
+            "Uncategorized: For any transaction that does not clearly fit into the categories above.\n\n"
+            "Output ONLY the JSON with categories added. Do not include any explanations or markdown formatting. "
+            "Once you output the categorized JSON, you are done - do not continue the conversation."
         ),
         reflect_on_tool_use=False
     )
-    
+
     # STAGE 1: Assistant + Executor to parse the statement
+    # Using custom termination condition that stops when valid JSON is found
+    json_termination = JSONSuccessTermination()
     parsing_team = RoundRobinGroupChat(
         participants=[assistant, executor_agent],
-        termination_condition=MaxMessageTermination(25)
+        termination_condition=json_termination
     )
-    
+
     # Send the statement as initial task
     task = TextMessage(
         content=f"statement_text = '''{statement_text}'''",
         source="user"
     )
-    
-    logger.info("Stage 1: Parsing statement...")
+
+    print("Stage 1: Parsing statement...")
     parsing_result = await Console(parsing_team.run_stream(task=task))
-    
+
     # Extract JSON from parsing stage
     parsed_json = None
-    executor_output = ""
-    
     for msg in parsing_result.messages:
         if getattr(msg, "source", "") == "executor":
             content = getattr(msg, "content", "")
-            executor_output = content  # Save for potential fallback
-            extracted = extract_json_from_text(content)
-            if extracted and isinstance(extracted, dict) and "transactions_by_cardholder" in extracted:
-                parsed_json = extracted
-                logger.info(f"Found valid JSON with {sum(len(txs) for txs in parsed_json['transactions_by_cardholder'].values())} transactions")
+            parsed_json = extract_json_from_text(content)
+            if parsed_json:
                 break
-    
+
     if not parsed_json:
-        logger.error("Failed to parse statement in Stage 1")
         raise ValueError("Failed to parse statement in Stage 1")
-    
-    logger.info("Stage 1 completed successfully. JSON extracted.")
-    
-    # STAGE 2: Categorizer processes the parsed JSON with retry logic
-    logger.info("Stage 2: Categorizing transactions...")
-    final_parsed_json = await run_categorizer_with_retry(categorizer_agent, parsed_json)
-    
-    # Verify the categorized JSON
-    if not verify_categorized_json(final_parsed_json, parsed_json):
-        logger.warning("Verification failed: categorized JSON is incomplete or missing categories")
-        # Try one more time with a direct approach
-        try:
-            logger.info("Trying direct categorization approach...")
-            categorizer_task = TextMessage(
-                content=(
-                    f"Here is a JSON object with transaction data. Your ONLY task is to add a 'category' field "
-                    f"to each transaction in the transactions_by_cardholder section, using the 6 categories "
-                    f"defined in your instructions. Return ONLY the complete JSON:\n\n"
-                    f"{json.dumps(parsed_json, indent=2)}"
-                ),
-                source="user"
-            )
-            
-            direct_result = await categorizer_agent.generate_reply(categorizer_task)
-            direct_json = extract_json_from_text(direct_result.content)
-            
-            if direct_json and verify_categorized_json(direct_json, parsed_json):
-                logger.info("Direct approach successful!")
-                final_parsed_json = direct_json
-            else:
-                logger.warning("Direct approach failed. Using original parsed JSON.")
-                final_parsed_json = parsed_json
-        except Exception as e:
-            logger.error(f"Error in direct approach: {str(e)}")
-            final_parsed_json = parsed_json
-    
+
+    print("Stage 1 completed successfully. JSON extracted.")
+
+    # STAGE 2: Categorizer processes the parsed JSON
+    categorizer_task = TextMessage(
+        content=f"Here is the parsed JSON to categorize:\n```json\n{json.dumps(parsed_json, indent=2)}\n```",
+        source="user"
+    )
+
+    # Using custom termination condition that stops when categorized JSON is found
+    categorization_termination = CategorizationSuccessTermination()
+    categorizer_team = RoundRobinGroupChat(
+        participants=[categorizer_agent],
+        termination_condition=categorization_termination
+    )
+
+    print("Stage 2: Categorizing transactions...")
+    categorization_result = await Console(categorizer_team.run_stream(task=categorizer_task))
+
     # Stop executor safely
     await code_executor.stop()
-    
-    return final_parsed_json
+
+    # Search categorization result for final JSON
+    final_parsed_json = None
+
+    # 1) prefer categorizer messages
+    for msg in categorization_result.messages:
+        src = getattr(msg, "source", "")
+        content = getattr(msg, "content", None)
+        # normalize content to string for searching
+        try:
+            content_str = content if isinstance(content, str) else str(content)
+        except Exception:
+            content_str = None
+
+        if not content_str:
+            continue
+
+        if src == "categorizer":
+            final_parsed_json = extract_json_from_text(content_str)
+            if final_parsed_json is not None:
+                return final_parsed_json
+
+    # 2) fallback: check all messages in categorization result
+    for msg in categorization_result.messages:
+        content = getattr(msg, "content", None)
+        try:
+            content_str = content if isinstance(content, str) else str(content)
+        except Exception:
+            content_str = None
+        if not content_str:
+            continue
+        final_parsed_json = extract_json_from_text(content_str)
+        if final_parsed_json is not None:
+            return final_parsed_json
+
+    # 3) If still not found — print helpful debug info and return the parsed JSON from stage 1
+    print("\n[DEBUG] No categorized JSON detected. Using Stage 1 result:")
+    for idx, msg in enumerate(categorization_result.messages):
+        src = getattr(msg, "source", "<no-source>")
+        content = getattr(msg, "content", "")
+        try:
+            preview = (content if isinstance(content, str) else str(content))[:800]
+        except Exception:
+            preview = "<could not stringify content>"
+        print(f"Message[{idx}] source={src} preview={preview!r}\n{'-'*40}")
+
+    # Return the original parsed JSON from stage 1 as fallback
+    return parsed_json
+
 
 if __name__ == "__main__":
-    try:
-        parsed_data = asyncio.run(run_parsing_agent())
-        
-        logger.info("\n=== Final Parsed JSON Object ===")
-        # Check if categories were added
-        has_categories = False
-        total_transactions = 0
-        for cardholder, transactions in parsed_data.get("transactions_by_cardholder", {}).items():
-            total_transactions += len(transactions)
-            if any("category" in tx for tx in transactions):
-                has_categories = True
-        
-        logger.info(f"Total transactions: {total_transactions}, Categories added: {has_categories}")
-        
-        # Save the JSON to a file
-        output_filename = "parsed_data.json"
+    parsed_data = asyncio.run(run_parsing_agent())
+    print("\n=== Final Parsed JSON Object ===")
+    print(json.dumps(parsed_data, indent=2, ensure_ascii=False))
 
-    except ValueError as ve:
-        logger.error(f"Value Error: {str(ve)}")
-        print(f"ERROR: {str(ve)}")
-        exit(1)
-    except json.JSONDecodeError as je:
-        logger.error(f"JSON Decode Error: {str(je)}")
-        print(f"JSON Error: {str(je)}")
-        exit(1)
-    except Exception as e:
-        logger.error(f"Unexpected error: {str(e)}", exc_info=True)
-        print(f"Unexpected error: {str(e)}")
-        exit(1)
+    # Save the JSON to a file
+    output_filename = "parsed_data.json"
+    with open(output_filename, "w", encoding="utf-8") as f:
+        json.dump(parsed_data, f, indent=2, ensure_ascii=False)
+    
+    print(f"\nJSON data saved to {output_filename}")

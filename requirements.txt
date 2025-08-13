@@ -7,6 +7,7 @@ tiktoken
 ipykernel
 autogen-ext[http-tool]
 autogen-ext[openai]
+autogen-ext[anthropic]
 langchain-community
 langchain
 docker

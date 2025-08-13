@@ -4,6 +4,7 @@ import asyncio
 import json
 import re
 from autogen_ext.models.openai import OpenAIChatCompletionClient
+from autogen_ext.models.anthropic import AnthropicChatCompletionClient
 from autogen_agentchat.agents import AssistantAgent, CodeExecutorAgent
 from autogen_agentchat.teams import RoundRobinGroupChat
 from autogen_agentchat.conditions import MaxMessageTermination
@@ -17,10 +18,13 @@ load_dotenv()
 
 # === CONFIGURATION ===
 BANK_STATEMENT_FILE = "temp/statement.txt"  # Text file containing raw statement
-OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-4.1-mini")  # Default model
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY2")  # Must be set in your .env
+ANTHROPIC_MODEL = os.getenv("ANTHROPIC_MODEL", "claude-sonnet-4-20250514")  # Default model
+ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY")  # Must be set in your .env
+# OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-4.1-mini")  # Default model
+# OPENAI_API_KEY = os.getenv("OPENAI_API_KEY2")  # Must be set in your .env
 
-if not OPENAI_API_KEY:
+# if not OPENAI_API_KEY:
+if not ANTHROPIC_API_KEY:
     raise EnvironmentError("Please set the OPENAI_API_KEY2 environment variable.")
 
 # === Helper to read statement text ===
@@ -72,9 +76,11 @@ async def run_parsing_agent():
     statement_text = load_statement(BANK_STATEMENT_FILE)
 
     # Create the model client correctly
-    model_client = OpenAIChatCompletionClient(
-        model=OPENAI_MODEL, api_key=OPENAI_API_KEY
-    )
+    # model_client = OpenAIChatCompletionClient(
+    #     model=OPENAI_MODEL, api_key=OPENAI_API_KEY
+    # )
+    model_client = AnthropicChatCompletionClient(
+        model=ANTHROPIC_MODEL, api_key=ANTHROPIC_API_KEY)
 
     # Assistant agent: writes code to parse the statement
     assistant = AssistantAgent(
@@ -150,7 +156,7 @@ async def run_parsing_agent():
     # STAGE 1: Assistant + Executor to parse the statement
     parsing_team = RoundRobinGroupChat(
         participants=[assistant, executor_agent],
-        termination_condition=MaxMessageTermination(25)
+        termination_condition=MaxMessageTermination(15)
     )
 
     # Send the statement as initial task
@@ -184,7 +190,7 @@ async def run_parsing_agent():
 
     categorizer_team = RoundRobinGroupChat(
         participants=[categorizer_agent],
-        termination_condition=MaxMessageTermination(5)
+        termination_condition=MaxMessageTermination(2)
     )
 
     print("Stage 2: Categorizing transactions...")
