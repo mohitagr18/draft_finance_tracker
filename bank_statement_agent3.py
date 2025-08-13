@@ -22,6 +22,7 @@ load_dotenv()
 # === CONFIGURATION ===
 BANK_STATEMENT_FILE = "temp/statement.txt"  # Text file containing raw statement
 ANTHROPIC_MODEL = os.getenv("ANTHROPIC_MODEL", "claude-sonnet-4-20250514")  # Default model
+# ANTHROPIC_MODEL = os.getenv("ANTHROPIC_MODEL", "claude-3-5-haiku-latest")  # Default model
 ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY")  # Must be set in your .env
 
 if not ANTHROPIC_API_KEY:
