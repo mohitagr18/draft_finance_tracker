@@ -240,3 +240,10 @@ if __name__ == "__main__":
     parsed_data = asyncio.run(run_parsing_agent())
     print("\n=== Parsed JSON Object ===")
     print(json.dumps(parsed_data, indent=2, ensure_ascii=False))
+
+    # Save the JSON to a file
+    output_filename = "parsed_data.json"
+    with open(output_filename, "w", encoding="utf-8") as f:
+        json.dump(parsed_data, f, indent=2, ensure_ascii=False)
+    
+    print(f"\nJSON data saved to {output_filename}")

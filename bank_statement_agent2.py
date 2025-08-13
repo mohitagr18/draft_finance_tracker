@@ -150,7 +150,7 @@ async def run_parsing_agent():
     # STAGE 1: Assistant + Executor to parse the statement
     parsing_team = RoundRobinGroupChat(
         participants=[assistant, executor_agent],
-        termination_condition=MaxMessageTermination(15)
+        termination_condition=MaxMessageTermination(25)
     )
 
     # Send the statement as initial task
@@ -184,7 +184,7 @@ async def run_parsing_agent():
 
     categorizer_team = RoundRobinGroupChat(
         participants=[categorizer_agent],
-        termination_condition=MaxMessageTermination(3)
+        termination_condition=MaxMessageTermination(5)
     )
 
     print("Stage 2: Categorizing transactions...")
@@ -246,3 +246,10 @@ if __name__ == "__main__":
     parsed_data = asyncio.run(run_parsing_agent())
     print("\n=== Final Parsed JSON Object ===")
     print(json.dumps(parsed_data, indent=2, ensure_ascii=False))
+
+    # Save the JSON to a file
+    output_filename = "parsed_data.json"
+    with open(output_filename, "w", encoding="utf-8") as f:
+        json.dump(parsed_data, f, indent=2, ensure_ascii=False)
+    
+    print(f"\nJSON data saved to {output_filename}")
