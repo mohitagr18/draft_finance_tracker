@@ -5,9 +5,10 @@ import json
 import argparse
 from pathlib import Path
 from autogen_ext.models.anthropic import AnthropicChatCompletionClient
+from autogen_ext.models.openai import OpenAIChatCompletionClient
 from autogen_agentchat.agents import AssistantAgent, CodeExecutorAgent
 from autogen_agentchat.teams import RoundRobinGroupChat
-from autogen_agentchat.conditions import TextMentionTermination
+from autogen_agentchat.conditions import TextMentionTermination, MaxMessageTermination
 from autogen_agentchat.messages import TextMessage
 from autogen_ext.code_executors.docker import DockerCommandLineCodeExecutor
 from autogen_agentchat.ui import Console
@@ -15,11 +16,18 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# === CONFIGURATION ===
-ANTHROPIC_MODEL = os.getenv("ANTHROPIC_MODEL", "claude-sonnet-4-20250514")
-ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY")
 
-if not ANTHROPIC_API_KEY:
+# === CONFIGURATION ===
+# BANK_STATEMENTS_PATTERN = "temp/statement*.txt"  # Pattern to match multiple statement files
+# OUTPUT_DIR = "temp/parsed_statements"  # Directory to save individual parsed files
+# ANTHROPIC_MODEL = os.getenv("ANTHROPIC_MODEL", "claude-sonnet-4-20250514")  # Default model
+# ANTHROPIC_MODEL = os.getenv("ANTHROPIC_MODEL", "claude-3-5-haiku-latest")  # Default model
+# ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY")  # Must be set in your .env
+OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-4.1-mini")  # Default model
+# OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-4o")  # Default model
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY2") 
+
+if not OPENAI_API_KEY:
     raise EnvironmentError("Please set the ANTHROPIC_API_KEY environment variable.")
 
 # Data Analyzer System Message
@@ -200,7 +208,7 @@ No matter which workflow you use, you **must always** follow these rules for exe
     ```python
     # Your code here
     ```
-4.  **Wait for Execution:** After writing code, pause and wait for the code executor agent's response.
+4.  **CRITICAL: Wait for Execution:** After writing code, pause and wait for the code executor agent's response.
 5.  **Install Libraries:** If a library is missing, provide a `bash` command to install it, then resend the unchanged Python code.
     ```bash
     pip install pandas matplotlib seaborn numpy
@@ -209,6 +217,21 @@ No matter which workflow you use, you **must always** follow these rules for exe
 7.  **Final Answer:** Once all tasks are complete, provide a final, comprehensive explanation of the financial insights discovered, followed by the word **STOP**.
 
 Remember: You are analyzing financial spending data, so focus on spending patterns, trends, categories, and merchant analysis. Always provide actionable insights about spending behavior.
+
+**CRITICAL: You must NEVER provide the final answer until AFTER the code has been executed by the code executor.**
+
+**IMPORTANT EXECUTION RULES:**
+- After writing Python code, you must STOP and wait for the code executor's response
+- You must see the actual output (print statements, error messages, etc.) before continuing
+- Do NOT make assumptions about what the code will output
+- Do NOT provide theoretical answers - only analyze actual execution results
+- Only say "STOP" after you have received and analyzed the real execution output
+
+Your process must be:
+1. Write Python code in a code block
+2. WAIT for the code executor to run it and return results  
+3. Only THEN analyze the actual results and provide insights
+4. End with STOP only after seeing the execution results
 """
 
 def load_combined_data(file_path: str) -> dict:
@@ -236,9 +259,13 @@ async def run_data_analyzer(json_file_path: str, user_question: str):
         return
     
     # Create model client
-    model_client = AnthropicChatCompletionClient(
-        model=ANTHROPIC_MODEL, 
-        api_key=ANTHROPIC_API_KEY
+    # model_client = AnthropicChatCompletionClient(
+    #     model=ANTHROPIC_MODEL, 
+    #     api_key=ANTHROPIC_API_KEY
+    # )
+    model_client = OpenAIChatCompletionClient(
+        model=OPENAI_MODEL, 
+        api_key=OPENAI_API_KEY
     )
     
     # Create data analyzer agent
@@ -262,11 +289,13 @@ async def run_data_analyzer(json_file_path: str, user_question: str):
         code_executor=code_executor
     )
     
-    # Create the team with termination condition
-    termination_condition = TextMentionTermination("STOP")
+    # Create the team with termination condition (fallback safety net)    
+    stop_termination = TextMentionTermination("STOP")
+    max_message_termination = MaxMessageTermination(max_messages=25)  # Safety net
+    
     analysis_team = RoundRobinGroupChat(
         participants=[data_analyzer, executor_agent],
-        termination_condition=termination_condition
+        termination_condition=stop_termination | max_message_termination
     )
     
     # Prepare the initial task message with the JSON file path and user question
@@ -300,22 +329,74 @@ Please analyze this financial data and provide insights based on the question as
     # Run the analysis
     try:
         result = await Console(analysis_team.run_stream(task=task))
+        
         print("\n" + "=" * 60)
         print("ANALYSIS COMPLETED")
         print("=" * 60)
         
-        # Check if a report was generated
+        # Process the result and extract key information
+        if hasattr(result, 'messages') and result.messages:
+            print(f"Total messages exchanged: {len(result.messages)}")
+            
+            # Check if analysis was terminated by STOP keyword
+            last_message = result.messages[-1] if result.messages else None
+            if last_message and hasattr(last_message, 'content'):
+                if "STOP" in str(last_message.content):
+                    print("✓ Analysis completed successfully with STOP keyword")
+                else:
+                    print("⚠ Analysis terminated by message limit (no STOP found)")
+            
+            # Extract and display code execution outputs for specific questions
+            print("\n" + "=" * 40)
+            print("CODE EXECUTION OUTPUTS:")
+            print("=" * 40)
+            
+            code_outputs = []
+            for msg in result.messages:
+                if hasattr(msg, 'source') and msg.source == "code_executor":
+                    content = getattr(msg, 'content', '')
+                    if content and content.strip():
+                        code_outputs.append(content)
+                        print(f"\n{content}")
+            
+            if not code_outputs:
+                print("No code execution outputs found.")
+            else:
+                print(f"\n✓ Found {len(code_outputs)} code execution result(s)")
+        
+        # Check if a report was generated (for broad questions)
         report_files = list(Path(".").glob("*report*.md"))
         if report_files:
-            print(f"\nGenerated reports: {[str(f) for f in report_files]}")
+            print(f"\n✓ Generated reports: {[str(f) for f in report_files]}")
+            for report_file in report_files:
+                file_size = report_file.stat().st_size
+                print(f"  - {report_file.name}: {file_size:,} bytes")
         
         # Check for generated plots
         plot_files = list(Path(".").glob("*.png"))
         if plot_files:
-            print(f"Generated plots: {[str(f) for f in plot_files]}")
+            print(f"✓ Generated plots: {[str(f) for f in plot_files]}")
+            for plot_file in plot_files:
+                file_size = plot_file.stat().st_size
+                print(f"  - {plot_file.name}: {file_size:,} bytes")
+        
+        # Provide summary based on what was generated
+        if report_files:
+            print(f"\n📊 BROAD ANALYSIS: Comprehensive report generated as {report_files[0].name}")
+        elif code_outputs:
+            print(f"\n🎯 SPECIFIC ANALYSIS: Direct answer provided above")
+        else:
+            print("⚠ No clear output detected - check if analysis completed successfully")
             
     except Exception as e:
         print(f"Error during analysis: {e}")
+        # Print last few messages for debugging
+        if 'result' in locals() and hasattr(result, 'messages') and result.messages:
+            print(f"\nLast message content preview:")
+            for msg in result.messages[-2:]:
+                if hasattr(msg, 'content') and hasattr(msg, 'source'):
+                    content_preview = str(msg.content)[:200] + "..." if len(str(msg.content)) > 200 else str(msg.content)
+                    print(f"  {msg.source}: {content_preview}")
     finally:
         # Clean up
         await code_executor.stop()
