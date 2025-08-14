@@ -1,0 +1,952 @@
+{
+  "combined_transactions_by_cardholder": {
+    "MOHIT AGGARWAL": [
+      {
+        "sale_date": "07/05",
+        "post_date": "07/05",
+        "description": "HEADWAY                  HEADWAY.CO   NY",
+        "amount": 10.0,
+        "category": "Merchandise & Services"
+      },
+      {
+        "sale_date": "07/06",
+        "post_date": "07/06",
+        "description": "COSTCO WHSE #0678        RANCHO CUCAMOCA",
+        "amount": 312.41,
+        "category": "Food & Dining"
+      },
+      {
+        "sale_date": "07/12",
+        "post_date": "07/12",
+        "description": "TRADER JOE S #217        RANCHO CUCAMOCA",
+        "amount": 66.64,
+        "category": "Food & Dining"
+      },
+      {
+        "sale_date": "07/12",
+        "post_date": "07/12",
+        "description": "SQ *HANDEL'S RANCHO CUCAMRancho CucamoCA",
+        "amount": 13.5,
+        "category": "Food & Dining"
+      },
+      {
+        "sale_date": "07/13",
+        "post_date": "07/13",
+        "description": "HEADWAY                  HEADWAY.CO   NY",
+        "amount": 10.0,
+        "category": "Merchandise & Services"
+      },
+      {
+        "sale_date": "07/13",
+        "post_date": "07/13",
+        "description": "DESI BAZAAR CASH AND CAR RANCHO CUCAMOCA",
+        "amount": 1.99,
+        "category": "Food & Dining"
+      },
+      {
+        "sale_date": "07/13",
+        "post_date": "07/13",
+        "description": "HOMEGOODS 275            RCH CUCAMONGACA",
+        "amount": 18.31,
+        "category": "Merchandise & Services"
+      },
+      {
+        "sale_date": "07/14",
+        "post_date": "07/14",
+        "description": "ALDI 79061               FONTANA      CA",
+        "amount": 8.91,
+        "category": "Food & Dining"
+      },
+      {
+        "sale_date": "07/14",
+        "post_date": "07/14",
+        "description": "RING STANDARD PLAN       RING.COM     CA",
+        "amount": 9.99,
+        "category": "Bills & Subscriptions"
+      },
+      {
+        "sale_date": "Jun 17",
+        "post_date": "Jun 18",
+        "description": "MED*POMONA VALLEY HOSP MC909-865-9500CA",
+        "amount": 249.6,
+        "category": "Merchandise & Services"
+      },
+      {
+        "sale_date": "Jun 22",
+        "post_date": "Jun 23",
+        "description": "BAPS SHAYONA-LA RETAILCHINO HILLSCA",
+        "amount": 25.95,
+        "category": "Food & Dining"
+      },
+      {
+        "sale_date": "Jun 22",
+        "post_date": "Jun 23",
+        "description": "BAPS SHAYONA-LA RETAILCHINO HILLSCA",
+        "amount": 8.0,
+        "category": "Food & Dining"
+      },
+      {
+        "sale_date": "Jun 25",
+        "post_date": "Jun 27",
+        "description": "TARGET        00019588FONTANACA",
+        "amount": 10.18,
+        "category": "Merchandise & Services"
+      },
+      {
+        "sale_date": "Jun 28",
+        "post_date": "Jun 30",
+        "description": "SQ *THE COPPER QBig Bear LakeCA",
+        "amount": 6.95,
+        "category": "Food & Dining"
+      },
+      {
+        "sale_date": "Jun 29",
+        "post_date": "Jun 30",
+        "description": "OLIVE GARDEN ZK 0026426RIALTOCA",
+        "amount": 72.8,
+        "category": "Food & Dining"
+      },
+      {
+        "sale_date": "Jun 30",
+        "post_date": "Jul 1",
+        "description": "LINQ LV DEP-NOSHW-CXL8662094732NV",
+        "amount": 186.96,
+        "category": "Travel & Transportation"
+      },
+      {
+        "sale_date": "Jun 30",
+        "post_date": "Jul 1",
+        "description": "BOOST MOBILEHTTPS://WWW.DCO",
+        "amount": 16.49,
+        "category": "Bills & Subscriptions"
+      },
+      {
+        "sale_date": "Jun 30",
+        "post_date": "Jul 1",
+        "description": "UCW STARBUCKSUNIVERSAL CITCA",
+        "amount": 23.33,
+        "category": "Food & Dining"
+      },
+      {
+        "sale_date": "Jun 30",
+        "post_date": "Jul 1",
+        "description": "PALACE CAFEUNIVERSAL CITCA",
+        "amount": 30.71,
+        "category": "Food & Dining"
+      },
+      {
+        "sale_date": "Jun 30",
+        "post_date": "Jul 1",
+        "description": "PALACE CAFEUNIVERSAL CITCA",
+        "amount": 15.35,
+        "category": "Food & Dining"
+      },
+      {
+        "sale_date": "Jul 1",
+        "post_date": "Jul 3",
+        "description": "ANIL P. PUNJABI MD DDSREDLANDSCA",
+        "amount": 85.0,
+        "category": "Merchandise & Services"
+      },
+      {
+        "sale_date": "Jul 1",
+        "post_date": "Jul 3",
+        "description": "85C BAKERY CAFE USARANCHO CUCAMOCA",
+        "amount": 27.25,
+        "category": "Food & Dining"
+      },
+      {
+        "sale_date": "Jul 2",
+        "post_date": "Jul 4",
+        "description": "VONS #1914RANCHO CUCAMOCA",
+        "amount": 5.99,
+        "category": "Food & Dining"
+      },
+      {
+        "sale_date": "Jul 2",
+        "post_date": "Jul 4",
+        "description": "SQ *HANDEL'S RANCHO CUCAMRancho CucamoCA",
+        "amount": 20.5,
+        "category": "Food & Dining"
+      },
+      {
+        "sale_date": "Jul 5",
+        "post_date": "Jul 7",
+        "description": "SQ *HANDEL'S RANCHO CUCAMRancho CucamoCA",
+        "amount": 13.5,
+        "category": "Food & Dining"
+      },
+      {
+        "sale_date": "Jul 5",
+        "post_date": "Jul 7",
+        "description": "TRADER JOE S #217RANCHO CUCAMOCA",
+        "amount": 42.49,
+        "category": "Food & Dining"
+      },
+      {
+        "sale_date": "Jul 6",
+        "post_date": "Jul 7",
+        "description": "HOMEGOODS 275RCH CUCAMONGACA",
+        "amount": 81.31,
+        "category": "Merchandise & Services"
+      },
+      {
+        "sale_date": "Jul 6",
+        "post_date": "Jul 8",
+        "description": "FIEND INC.RANCHO CUCAMOCA",
+        "amount": 6.36,
+        "category": "Uncategorized"
+      },
+      {
+        "sale_date": "Jul 6",
+        "post_date": "Jul 8",
+        "description": "ROSS STORES #212RCH CUCAMONGACA",
+        "amount": 8.6,
+        "category": "Merchandise & Services"
+      }
+    ],
+    "HIMANI SOOD": [
+      {
+        "sale_date": "07/03",
+        "post_date": "07/03",
+        "description": "COSTCO GAS #0686         MONTCLAIR    CA",
+        "amount": 42.49,
+        "category": "Travel & Transportation"
+      },
+      {
+        "sale_date": "07/08",
+        "post_date": "07/08",
+        "description": "COSTCO WHSE #0627        FONTANA      CA",
+        "amount": 2.71,
+        "category": "Food & Dining"
+      },
+      {
+        "sale_date": "07/08",
+        "post_date": "07/08",
+        "description": "COSTCO WHSE #0627        FONTANA      CA",
+        "amount": 145.98,
+        "category": "Food & Dining"
+      },
+      {
+        "sale_date": "07/14",
+        "post_date": "07/14",
+        "description": "COSTCO GAS #0686         MONTCLAIR    CA",
+        "amount": 40.09,
+        "category": "Travel & Transportation"
+      },
+      {
+        "sale_date": "07/16",
+        "post_date": "07/16",
+        "description": "COSTCO WHSE #0627        FONTANA      CA",
+        "amount": 186.02,
+        "category": "Food & Dining"
+      },
+      {
+        "sale_date": "07/17",
+        "post_date": "07/17",
+        "description": "UBER   *EATS             HELP.UBER.COMCA",
+        "amount": 35.31,
+        "category": "Food & Dining"
+      },
+      {
+        "sale_date": "07/24",
+        "post_date": "07/24",
+        "description": "COSTCO GAS #0478         SAN BERNARDINCA",
+        "amount": 42.44,
+        "category": "Travel & Transportation"
+      },
+      {
+        "sale_date": "Jun 19",
+        "post_date": "Jun 20",
+        "description": "AHAVA MED SPA PC909-204-7373CA",
+        "amount": 150.0,
+        "category": "Merchandise & Services"
+      },
+      {
+        "sale_date": "Jun 22",
+        "post_date": "Jun 23",
+        "description": "BJS RESTAURANTS 433RANCHO CUCAMOCA",
+        "amount": 84.97,
+        "category": "Food & Dining"
+      },
+      {
+        "sale_date": "Jun 24",
+        "post_date": "Jun 26",
+        "description": "RED TOMATOES FARMERRANCHO CUCAMOCA",
+        "amount": 35.36,
+        "category": "Food & Dining"
+      },
+      {
+        "sale_date": "Jun 25",
+        "post_date": "Jun 27",
+        "description": "SANJHA SAUDHAFONTANACA",
+        "amount": 44.75,
+        "category": "Food & Dining"
+      },
+      {
+        "sale_date": "Jun 26",
+        "post_date": "Jun 28",
+        "description": "STATERBROS073MONTCLAIRCA",
+        "amount": 55.0,
+        "category": "Food & Dining"
+      },
+      {
+        "sale_date": "Jun 27",
+        "post_date": "Jun 27",
+        "description": "IC* INSTACART*1102INSTACART.COMCA",
+        "amount": 48.72,
+        "category": "Food & Dining"
+      },
+      {
+        "sale_date": "Jun 27",
+        "post_date": "Jun 30",
+        "description": "SANJHA SAUDHAFONTANACA",
+        "amount": 38.56,
+        "category": "Food & Dining"
+      },
+      {
+        "sale_date": "Jun 28",
+        "post_date": "Jun 30",
+        "description": "THE VILLAGE SWEET SHOPPEBIG BEAR LAKECA",
+        "amount": 10.0,
+        "category": "Food & Dining"
+      },
+      {
+        "sale_date": "Jun 29",
+        "post_date": "Jul 1",
+        "description": "JOHN WAYNE AIRPORTSANTA ANACA",
+        "amount": 4.0,
+        "category": "Travel & Transportation"
+      },
+      {
+        "sale_date": "Jun 30",
+        "post_date": "Jun 30",
+        "description": "WORKING ADVANTAGE800-565-3712FL",
+        "amount": 957.58,
+        "category": "Merchandise & Services"
+      },
+      {
+        "sale_date": "Jun 30",
+        "post_date": "Jul 1",
+        "description": "USH PARKING RCUNIVERSAL CITCA",
+        "amount": 35.0,
+        "category": "Travel & Transportation"
+      },
+      {
+        "sale_date": "Jul 5",
+        "post_date": "Jul 7",
+        "description": "ONT AIRPT PRKING LOT 4ONTARIOCA",
+        "amount": 10.0,
+        "category": "Travel & Transportation"
+      },
+      {
+        "sale_date": "Jul 6",
+        "post_date": "Jul 7",
+        "description": "MENDOCINOFARMSORDER.MENDOCICA",
+        "amount": 23.19,
+        "category": "Food & Dining"
+      },
+      {
+        "sale_date": "Jul 6",
+        "post_date": "Jul 7",
+        "description": "KOHL'S #0602FONTANACA",
+        "amount": 3.25,
+        "category": "Merchandise & Services"
+      },
+      {
+        "sale_date": "Jul 9",
+        "post_date": "Jul 10",
+        "description": "CVS/PHARMACY #08589800-746-7287CA",
+        "amount": 7.31,
+        "category": "Merchandise & Services"
+      },
+      {
+        "sale_date": "Jul 10",
+        "post_date": "Jul 11",
+        "description": "AMAZON MKTPL*NL68Z08Y1Amzn.com/billWA",
+        "amount": 15.7,
+        "category": "Merchandise & Services"
+      },
+      {
+        "sale_date": "Jul 11",
+        "post_date": "Jul 14",
+        "description": "AMAZON MKTPL*NL36229U1Amzn.com/billWA",
+        "amount": 19.58,
+        "category": "Merchandise & Services"
+      },
+      {
+        "sale_date": "Jul 11",
+        "post_date": "Jul 14",
+        "description": "AMAZON MKTPL*NL2ZY29V1Amzn.com/billWA",
+        "amount": 21.74,
+        "category": "Merchandise & Services"
+      },
+      {
+        "sale_date": "Jul 11",
+        "post_date": "Jul 14",
+        "description": "AMAZON MKTPL*NR8VO2OA0Amzn.com/billWA",
+        "amount": 41.76,
+        "category": "Merchandise & Services"
+      },
+      {
+        "sale_date": "Jul 12",
+        "post_date": "Jul 12",
+        "description": "AMAZON RETA* NR36J3ZS0WWW.AMAZON.COWA",
+        "amount": 14.84,
+        "category": "Merchandise & Services"
+      },
+      {
+        "sale_date": "Jul 14",
+        "post_date": "Jul 15",
+        "description": "BONITA OBSTETRICS AND GYN909-3922002CA",
+        "amount": 49.27,
+        "category": "Merchandise & Services"
+      }
+    ]
+  },
+  "individual_statements": [
+    {
+      "filename": "statement_parsed",
+      "data": {
+        "transactions_by_cardholder": {
+          "MOHIT AGGARWAL": [
+            {
+              "sale_date": "07/05",
+              "post_date": "07/05",
+              "description": "HEADWAY                  HEADWAY.CO   NY",
+              "amount": 10.0,
+              "category": "Merchandise & Services"
+            },
+            {
+              "sale_date": "07/06",
+              "post_date": "07/06",
+              "description": "COSTCO WHSE #0678        RANCHO CUCAMOCA",
+              "amount": 312.41,
+              "category": "Food & Dining"
+            },
+            {
+              "sale_date": "07/12",
+              "post_date": "07/12",
+              "description": "TRADER JOE S #217        RANCHO CUCAMOCA",
+              "amount": 66.64,
+              "category": "Food & Dining"
+            },
+            {
+              "sale_date": "07/12",
+              "post_date": "07/12",
+              "description": "SQ *HANDEL'S RANCHO CUCAMRancho CucamoCA",
+              "amount": 13.5,
+              "category": "Food & Dining"
+            },
+            {
+              "sale_date": "07/13",
+              "post_date": "07/13",
+              "description": "HEADWAY                  HEADWAY.CO   NY",
+              "amount": 10.0,
+              "category": "Merchandise & Services"
+            },
+            {
+              "sale_date": "07/13",
+              "post_date": "07/13",
+              "description": "DESI BAZAAR CASH AND CAR RANCHO CUCAMOCA",
+              "amount": 1.99,
+              "category": "Food & Dining"
+            },
+            {
+              "sale_date": "07/13",
+              "post_date": "07/13",
+              "description": "HOMEGOODS 275            RCH CUCAMONGACA",
+              "amount": 18.31,
+              "category": "Merchandise & Services"
+            },
+            {
+              "sale_date": "07/14",
+              "post_date": "07/14",
+              "description": "ALDI 79061               FONTANA      CA",
+              "amount": 8.91,
+              "category": "Food & Dining"
+            },
+            {
+              "sale_date": "07/14",
+              "post_date": "07/14",
+              "description": "RING STANDARD PLAN       RING.COM     CA",
+              "amount": 9.99,
+              "category": "Bills & Subscriptions"
+            }
+          ],
+          "HIMANI SOOD": [
+            {
+              "sale_date": "07/03",
+              "post_date": "07/03",
+              "description": "COSTCO GAS #0686         MONTCLAIR    CA",
+              "amount": 42.49,
+              "category": "Travel & Transportation"
+            },
+            {
+              "sale_date": "07/08",
+              "post_date": "07/08",
+              "description": "COSTCO WHSE #0627        FONTANA      CA",
+              "amount": 2.71,
+              "category": "Food & Dining"
+            },
+            {
+              "sale_date": "07/08",
+              "post_date": "07/08",
+              "description": "COSTCO WHSE #0627        FONTANA      CA",
+              "amount": 145.98,
+              "category": "Food & Dining"
+            },
+            {
+              "sale_date": "07/14",
+              "post_date": "07/14",
+              "description": "COSTCO GAS #0686         MONTCLAIR    CA",
+              "amount": 40.09,
+              "category": "Travel & Transportation"
+            },
+            {
+              "sale_date": "07/16",
+              "post_date": "07/16",
+              "description": "COSTCO WHSE #0627        FONTANA      CA",
+              "amount": 186.02,
+              "category": "Food & Dining"
+            },
+            {
+              "sale_date": "07/17",
+              "post_date": "07/17",
+              "description": "UBER   *EATS             HELP.UBER.COMCA",
+              "amount": 35.31,
+              "category": "Food & Dining"
+            },
+            {
+              "sale_date": "07/24",
+              "post_date": "07/24",
+              "description": "COSTCO GAS #0478         SAN BERNARDINCA",
+              "amount": 42.44,
+              "category": "Travel & Transportation"
+            }
+          ]
+        },
+        "summary": {
+          "bank_name": "Citi",
+          "previous_balance": 1041.44,
+          "payments": 1041.44,
+          "credits": 36.28,
+          "purchases": 946.79,
+          "cash_advances": 0.0,
+          "fees": 0.0,
+          "interest": 0.0,
+          "new_balance": 910.51,
+          "rewards_balance": 179.26,
+          "available_credit_limit": 6089.0,
+          "total_transactions": 16,
+          "total_amount": 946.7900000000001
+        }
+      }
+    },
+    {
+      "filename": "statement2_parsed",
+      "data": {
+        "transactions_by_cardholder": {
+          "MOHIT AGGARWAL": [
+            {
+              "sale_date": "Jun 17",
+              "post_date": "Jun 18",
+              "description": "MED*POMONA VALLEY HOSP MC909-865-9500CA",
+              "amount": 249.6,
+              "category": "Merchandise & Services"
+            },
+            {
+              "sale_date": "Jun 22",
+              "post_date": "Jun 23",
+              "description": "BAPS SHAYONA-LA RETAILCHINO HILLSCA",
+              "amount": 25.95,
+              "category": "Food & Dining"
+            },
+            {
+              "sale_date": "Jun 22",
+              "post_date": "Jun 23",
+              "description": "BAPS SHAYONA-LA RETAILCHINO HILLSCA",
+              "amount": 8.0,
+              "category": "Food & Dining"
+            },
+            {
+              "sale_date": "Jun 25",
+              "post_date": "Jun 27",
+              "description": "TARGET        00019588FONTANACA",
+              "amount": 10.18,
+              "category": "Merchandise & Services"
+            },
+            {
+              "sale_date": "Jun 28",
+              "post_date": "Jun 30",
+              "description": "SQ *THE COPPER QBig Bear LakeCA",
+              "amount": 6.95,
+              "category": "Food & Dining"
+            },
+            {
+              "sale_date": "Jun 29",
+              "post_date": "Jun 30",
+              "description": "OLIVE GARDEN ZK 0026426RIALTOCA",
+              "amount": 72.8,
+              "category": "Food & Dining"
+            },
+            {
+              "sale_date": "Jun 30",
+              "post_date": "Jul 1",
+              "description": "LINQ LV DEP-NOSHW-CXL8662094732NV",
+              "amount": 186.96,
+              "category": "Travel & Transportation"
+            },
+            {
+              "sale_date": "Jun 30",
+              "post_date": "Jul 1",
+              "description": "BOOST MOBILEHTTPS://WWW.DCO",
+              "amount": 16.49,
+              "category": "Bills & Subscriptions"
+            },
+            {
+              "sale_date": "Jun 30",
+              "post_date": "Jul 1",
+              "description": "UCW STARBUCKSUNIVERSAL CITCA",
+              "amount": 23.33,
+              "category": "Food & Dining"
+            },
+            {
+              "sale_date": "Jun 30",
+              "post_date": "Jul 1",
+              "description": "PALACE CAFEUNIVERSAL CITCA",
+              "amount": 30.71,
+              "category": "Food & Dining"
+            },
+            {
+              "sale_date": "Jun 30",
+              "post_date": "Jul 1",
+              "description": "PALACE CAFEUNIVERSAL CITCA",
+              "amount": 15.35,
+              "category": "Food & Dining"
+            },
+            {
+              "sale_date": "Jul 1",
+              "post_date": "Jul 3",
+              "description": "ANIL P. PUNJABI MD DDSREDLANDSCA",
+              "amount": 85.0,
+              "category": "Merchandise & Services"
+            },
+            {
+              "sale_date": "Jul 1",
+              "post_date": "Jul 3",
+              "description": "85C BAKERY CAFE USARANCHO CUCAMOCA",
+              "amount": 27.25,
+              "category": "Food & Dining"
+            },
+            {
+              "sale_date": "Jul 2",
+              "post_date": "Jul 4",
+              "description": "VONS #1914RANCHO CUCAMOCA",
+              "amount": 5.99,
+              "category": "Food & Dining"
+            },
+            {
+              "sale_date": "Jul 2",
+              "post_date": "Jul 4",
+              "description": "SQ *HANDEL'S RANCHO CUCAMRancho CucamoCA",
+              "amount": 20.5,
+              "category": "Food & Dining"
+            },
+            {
+              "sale_date": "Jul 5",
+              "post_date": "Jul 7",
+              "description": "SQ *HANDEL'S RANCHO CUCAMRancho CucamoCA",
+              "amount": 13.5,
+              "category": "Food & Dining"
+            },
+            {
+              "sale_date": "Jul 5",
+              "post_date": "Jul 7",
+              "description": "TRADER JOE S #217RANCHO CUCAMOCA",
+              "amount": 42.49,
+              "category": "Food & Dining"
+            },
+            {
+              "sale_date": "Jul 6",
+              "post_date": "Jul 7",
+              "description": "HOMEGOODS 275RCH CUCAMONGACA",
+              "amount": 81.31,
+              "category": "Merchandise & Services"
+            },
+            {
+              "sale_date": "Jul 6",
+              "post_date": "Jul 8",
+              "description": "FIEND INC.RANCHO CUCAMOCA",
+              "amount": 6.36,
+              "category": "Uncategorized"
+            },
+            {
+              "sale_date": "Jul 6",
+              "post_date": "Jul 8",
+              "description": "ROSS STORES #212RCH CUCAMONGACA",
+              "amount": 8.6,
+              "category": "Merchandise & Services"
+            }
+          ],
+          "HIMANI SOOD": [
+            {
+              "sale_date": "Jun 19",
+              "post_date": "Jun 20",
+              "description": "AHAVA MED SPA PC909-204-7373CA",
+              "amount": 150.0,
+              "category": "Merchandise & Services"
+            },
+            {
+              "sale_date": "Jun 22",
+              "post_date": "Jun 23",
+              "description": "BJS RESTAURANTS 433RANCHO CUCAMOCA",
+              "amount": 84.97,
+              "category": "Food & Dining"
+            },
+            {
+              "sale_date": "Jun 24",
+              "post_date": "Jun 26",
+              "description": "RED TOMATOES FARMERRANCHO CUCAMOCA",
+              "amount": 35.36,
+              "category": "Food & Dining"
+            },
+            {
+              "sale_date": "Jun 25",
+              "post_date": "Jun 27",
+              "description": "SANJHA SAUDHAFONTANACA",
+              "amount": 44.75,
+              "category": "Food & Dining"
+            },
+            {
+              "sale_date": "Jun 26",
+              "post_date": "Jun 28",
+              "description": "STATERBROS073MONTCLAIRCA",
+              "amount": 55.0,
+              "category": "Food & Dining"
+            },
+            {
+              "sale_date": "Jun 27",
+              "post_date": "Jun 27",
+              "description": "IC* INSTACART*1102INSTACART.COMCA",
+              "amount": 48.72,
+              "category": "Food & Dining"
+            },
+            {
+              "sale_date": "Jun 27",
+              "post_date": "Jun 30",
+              "description": "SANJHA SAUDHAFONTANACA",
+              "amount": 38.56,
+              "category": "Food & Dining"
+            },
+            {
+              "sale_date": "Jun 28",
+              "post_date": "Jun 30",
+              "description": "THE VILLAGE SWEET SHOPPEBIG BEAR LAKECA",
+              "amount": 10.0,
+              "category": "Food & Dining"
+            },
+            {
+              "sale_date": "Jun 29",
+              "post_date": "Jul 1",
+              "description": "JOHN WAYNE AIRPORTSANTA ANACA",
+              "amount": 4.0,
+              "category": "Travel & Transportation"
+            },
+            {
+              "sale_date": "Jun 30",
+              "post_date": "Jun 30",
+              "description": "WORKING ADVANTAGE800-565-3712FL",
+              "amount": 957.58,
+              "category": "Merchandise & Services"
+            },
+            {
+              "sale_date": "Jun 30",
+              "post_date": "Jul 1",
+              "description": "USH PARKING RCUNIVERSAL CITCA",
+              "amount": 35.0,
+              "category": "Travel & Transportation"
+            },
+            {
+              "sale_date": "Jul 5",
+              "post_date": "Jul 7",
+              "description": "ONT AIRPT PRKING LOT 4ONTARIOCA",
+              "amount": 10.0,
+              "category": "Travel & Transportation"
+            },
+            {
+              "sale_date": "Jul 6",
+              "post_date": "Jul 7",
+              "description": "MENDOCINOFARMSORDER.MENDOCICA",
+              "amount": 23.19,
+              "category": "Food & Dining"
+            },
+            {
+              "sale_date": "Jul 6",
+              "post_date": "Jul 7",
+              "description": "KOHL'S #0602FONTANACA",
+              "amount": 3.25,
+              "category": "Merchandise & Services"
+            },
+            {
+              "sale_date": "Jul 9",
+              "post_date": "Jul 10",
+              "description": "CVS/PHARMACY #08589800-746-7287CA",
+              "amount": 7.31,
+              "category": "Merchandise & Services"
+            },
+            {
+              "sale_date": "Jul 10",
+              "post_date": "Jul 11",
+              "description": "AMAZON MKTPL*NL68Z08Y1Amzn.com/billWA",
+              "amount": 15.7,
+              "category": "Merchandise & Services"
+            },
+            {
+              "sale_date": "Jul 11",
+              "post_date": "Jul 14",
+              "description": "AMAZON MKTPL*NL36229U1Amzn.com/billWA",
+              "amount": 19.58,
+              "category": "Merchandise & Services"
+            },
+            {
+              "sale_date": "Jul 11",
+              "post_date": "Jul 14",
+              "description": "AMAZON MKTPL*NL2ZY29V1Amzn.com/billWA",
+              "amount": 21.74,
+              "category": "Merchandise & Services"
+            },
+            {
+              "sale_date": "Jul 11",
+              "post_date": "Jul 14",
+              "description": "AMAZON MKTPL*NR8VO2OA0Amzn.com/billWA",
+              "amount": 41.76,
+              "category": "Merchandise & Services"
+            },
+            {
+              "sale_date": "Jul 12",
+              "post_date": "Jul 12",
+              "description": "AMAZON RETA* NR36J3ZS0WWW.AMAZON.COWA",
+              "amount": 14.84,
+              "category": "Merchandise & Services"
+            },
+            {
+              "sale_date": "Jul 14",
+              "post_date": "Jul 15",
+              "description": "BONITA OBSTETRICS AND GYN909-3922002CA",
+              "amount": 49.27,
+              "category": "Merchandise & Services"
+            }
+          ]
+        },
+        "summary": {
+          "bank_name": "Capital One",
+          "previous_balance": 2255.91,
+          "payments": 2255.91,
+          "credits": 901.15,
+          "purchases": 2607.9,
+          "cash_advances": 0.0,
+          "fees": 0.0,
+          "interest": 0.0,
+          "new_balance": 1706.75,
+          "available_credit_limit": 18.0,
+          "rewards_balance": 31,
+          "total_amount": 2607.9,
+          "total_transactions": 41
+        }
+      }
+    }
+  ],
+  "combined_summary": {
+    "total_files_processed": 2,
+    "total_transactions": 57,
+    "total_amount": 3554.69,
+    "total_purchases": 3554.69,
+    "total_payments": 3297.35
+  },
+  "summary_by_bank": {
+    "Citi": {
+      "total_statements": 1,
+      "total_transactions": 16,
+      "total_amount": 946.7900000000001,
+      "total_purchases": 946.79,
+      "total_payments": 1041.44,
+      "cardholders": [
+        "MOHIT AGGARWAL",
+        "HIMANI SOOD"
+      ]
+    },
+    "Capital One": {
+      "total_statements": 1,
+      "total_transactions": 41,
+      "total_amount": 2607.9,
+      "total_purchases": 2607.9,
+      "total_payments": 2255.91,
+      "cardholders": [
+        "MOHIT AGGARWAL",
+        "HIMANI SOOD"
+      ]
+    }
+  },
+  "summary_by_cardholder": {
+    "MOHIT AGGARWAL": {
+      "total_transactions": 29,
+      "total_amount": 1389.0700000000002,
+      "total_purchases": 1389.0700000000002,
+      "total_payments": 0.0,
+      "banks": {
+        "Citi": {
+          "total_transactions": 9,
+          "total_amount": 451.75000000000006,
+          "total_purchases": 451.75000000000006,
+          "total_payments": 0.0
+        },
+        "Capital One": {
+          "total_transactions": 20,
+          "total_amount": 937.3200000000002,
+          "total_purchases": 937.3200000000002,
+          "total_payments": 0.0
+        }
+      },
+      "category_totals": {
+        "Merchandise & Services": 473.0,
+        "Food & Dining": 696.2700000000001,
+        "Bills & Subscriptions": 26.479999999999997,
+        "Travel & Transportation": 186.96,
+        "Uncategorized": 6.36
+      }
+    },
+    "HIMANI SOOD": {
+      "total_transactions": 28,
+      "total_amount": 2165.62,
+      "total_purchases": 2165.62,
+      "total_payments": 0.0,
+      "banks": {
+        "Citi": {
+          "total_transactions": 7,
+          "total_amount": 495.04,
+          "total_purchases": 495.04,
+          "total_payments": 0.0
+        },
+        "Capital One": {
+          "total_transactions": 21,
+          "total_amount": 1670.58,
+          "total_purchases": 1670.58,
+          "total_payments": 0.0
+        }
+      },
+      "category_totals": {
+        "Travel & Transportation": 174.02,
+        "Food & Dining": 710.5700000000002,
+        "Merchandise & Services": 1281.0299999999997
+      }
+    }
+  },
+  "category_totals": {
+    "Merchandise & Services": 1754.0299999999997,
+    "Food & Dining": 1406.8400000000001,
+    "Bills & Subscriptions": 26.479999999999997,
+    "Travel & Transportation": 360.98,
+    "Uncategorized": 6.36
+  }
+}
