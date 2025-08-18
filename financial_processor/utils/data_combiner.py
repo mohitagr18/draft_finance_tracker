@@ -157,3 +157,12 @@ def has_categories(json_obj: dict) -> bool:
         return False
     except Exception:
         return False
+    
+
+def load_combined_data(file_path: str) -> dict:
+    """Load the combined financial data JSON file."""
+    try:
+        with open(file_path, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    except Exception as e:
+        raise ValueError(f"Error loading combined data file: {e}")

@@ -12,17 +12,9 @@ from autogen_agentchat.ui import Console
 
 from config.models import get_openai_client
 from config.constants import TEMP_DIR, FINAL_OUTPUT_DIR, OPENAI_MODEL
+from utils.data_combiner import load_combined_data
 from agents.prompts.data_analyzer_message import DATA_ANALYZER_SYSTEM_MESSAGE
 
-
-
-def load_combined_data(file_path: str) -> dict:
-    """Load the combined financial data JSON file."""
-    try:
-        with open(file_path, 'r', encoding='utf-8') as f:
-            return json.load(f)
-    except Exception as e:
-        raise ValueError(f"Error loading combined data file: {e}")
 
 
 async def run_data_analyzer(json_file_path: str, user_question: str):
