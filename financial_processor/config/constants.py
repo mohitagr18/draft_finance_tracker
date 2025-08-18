@@ -1,6 +1,9 @@
 """Configuration constants for the financial processor."""
 
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # === CONFIGURATION ===
 
