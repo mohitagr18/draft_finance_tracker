@@ -2,69 +2,6 @@
   "combined_transactions_by_cardholder": {
     "MOHIT AGGARWAL": [
       {
-        "sale_date": "07/05",
-        "post_date": "07/05",
-        "description": "HEADWAY                  HEADWAY.CO   NY",
-        "amount": 10.0,
-        "category": "Merchandise & Services"
-      },
-      {
-        "sale_date": "07/06",
-        "post_date": "07/06",
-        "description": "COSTCO WHSE #0678        RANCHO CUCAMOCA",
-        "amount": 312.41,
-        "category": "Food & Dining"
-      },
-      {
-        "sale_date": "07/12",
-        "post_date": "07/12",
-        "description": "TRADER JOE S #217        RANCHO CUCAMOCA",
-        "amount": 66.64,
-        "category": "Food & Dining"
-      },
-      {
-        "sale_date": "07/12",
-        "post_date": "07/12",
-        "description": "SQ *HANDEL'S RANCHO CUCAMRancho CucamoCA",
-        "amount": 13.5,
-        "category": "Food & Dining"
-      },
-      {
-        "sale_date": "07/13",
-        "post_date": "07/13",
-        "description": "HEADWAY                  HEADWAY.CO   NY",
-        "amount": 10.0,
-        "category": "Merchandise & Services"
-      },
-      {
-        "sale_date": "07/13",
-        "post_date": "07/13",
-        "description": "DESI BAZAAR CASH AND CAR RANCHO CUCAMOCA",
-        "amount": 1.99,
-        "category": "Food & Dining"
-      },
-      {
-        "sale_date": "07/13",
-        "post_date": "07/13",
-        "description": "HOMEGOODS 275            RCH CUCAMONGACA",
-        "amount": 18.31,
-        "category": "Merchandise & Services"
-      },
-      {
-        "sale_date": "07/14",
-        "post_date": "07/14",
-        "description": "ALDI 79061               FONTANA      CA",
-        "amount": 8.91,
-        "category": "Food & Dining"
-      },
-      {
-        "sale_date": "07/14",
-        "post_date": "07/14",
-        "description": "RING STANDARD PLAN       RING.COM     CA",
-        "amount": 9.99,
-        "category": "Bills & Subscriptions"
-      },
-      {
         "sale_date": "Jun 17",
         "post_date": "Jun 18",
         "description": "MED*POMONA VALLEY HOSP MC909-865-9500CA",
@@ -203,58 +140,58 @@
         "description": "ROSS STORES #212RCH CUCAMONGACA",
         "amount": 8.6,
         "category": "Merchandise & Services"
-      }
-    ],
-    "HIMANI SOOD": [
-      {
-        "sale_date": "07/03",
-        "post_date": "07/03",
-        "description": "COSTCO GAS #0686         MONTCLAIR    CA",
-        "amount": 42.49,
-        "category": "Travel & Transportation"
       },
       {
-        "sale_date": "07/08",
-        "post_date": "07/08",
-        "description": "COSTCO WHSE #0627        FONTANA      CA",
-        "amount": 2.71,
+        "sale_date": "07/05",
+        "post_date": "07/05",
+        "description": "HEADWAY                  HEADWAY.CO   NY",
+        "amount": 10.0,
+        "category": "Merchandise & Services"
+      },
+      {
+        "sale_date": "07/06",
+        "post_date": "07/06",
+        "description": "COSTCO WHSE #0678        RANCHO CUCAMOCA",
+        "amount": 312.41,
         "category": "Food & Dining"
       },
       {
-        "sale_date": "07/08",
-        "post_date": "07/08",
-        "description": "COSTCO WHSE #0627        FONTANA      CA",
-        "amount": 145.98,
+        "sale_date": "07/12",
+        "post_date": "07/12",
+        "description": "TRADER JOE S #217        RANCHO CUCAMOCA",
+        "amount": 66.64,
+        "category": "Food & Dining"
+      },
+      {
+        "sale_date": "07/13",
+        "post_date": "07/13",
+        "description": "HEADWAY                  HEADWAY.CO   NY",
+        "amount": 10.0,
+        "category": "Merchandise & Services"
+      },
+      {
+        "sale_date": "07/13",
+        "post_date": "07/13",
+        "description": "HOMEGOODS 275            RCH CUCAMONGACA",
+        "amount": 18.31,
+        "category": "Merchandise & Services"
+      },
+      {
+        "sale_date": "07/14",
+        "post_date": "07/14",
+        "description": "ALDI 79061               FONTANA      CA",
+        "amount": 8.91,
         "category": "Food & Dining"
       },
       {
         "sale_date": "07/14",
         "post_date": "07/14",
-        "description": "COSTCO GAS #0686         MONTCLAIR    CA",
-        "amount": 40.09,
-        "category": "Travel & Transportation"
-      },
-      {
-        "sale_date": "07/16",
-        "post_date": "07/16",
-        "description": "COSTCO WHSE #0627        FONTANA      CA",
-        "amount": 186.02,
-        "category": "Food & Dining"
-      },
-      {
-        "sale_date": "07/17",
-        "post_date": "07/17",
-        "description": "UBER   *EATS             HELP.UBER.COMCA",
-        "amount": 35.31,
-        "category": "Food & Dining"
-      },
-      {
-        "sale_date": "07/24",
-        "post_date": "07/24",
-        "description": "COSTCO GAS #0478         SAN BERNARDINCA",
-        "amount": 42.44,
-        "category": "Travel & Transportation"
-      },
+        "description": "RING STANDARD PLAN       RING.COM     CA",
+        "amount": 9.99,
+        "category": "Bills & Subscriptions"
+      }
+    ],
+    "HIMANI SOOD": [
       {
         "sale_date": "Jun 19",
         "post_date": "Jun 20",
@@ -323,7 +260,7 @@
         "post_date": "Jun 30",
         "description": "WORKING ADVANTAGE800-565-3712FL",
         "amount": 957.58,
-        "category": "Merchandise & Services"
+        "category": "Uncategorized"
       },
       {
         "sale_date": "Jun 30",
@@ -401,150 +338,61 @@
         "description": "BONITA OBSTETRICS AND GYN909-3922002CA",
         "amount": 49.27,
         "category": "Merchandise & Services"
+      },
+      {
+        "sale_date": "07/03",
+        "post_date": "07/03",
+        "description": "COSTCO GAS #0686         MONTCLAIR    CA",
+        "amount": 42.49,
+        "category": "Travel & Transportation"
+      },
+      {
+        "sale_date": "07/08",
+        "post_date": "07/08",
+        "description": "COSTCO WHSE #0627        FONTANA      CA",
+        "amount": 2.71,
+        "category": "Food & Dining"
+      },
+      {
+        "sale_date": "07/08",
+        "post_date": "07/08",
+        "description": "COSTCO WHSE #0627        FONTANA      CA",
+        "amount": 145.98,
+        "category": "Food & Dining"
+      },
+      {
+        "sale_date": "07/14",
+        "post_date": "07/14",
+        "description": "COSTCO GAS #0686         MONTCLAIR    CA",
+        "amount": 40.09,
+        "category": "Travel & Transportation"
+      },
+      {
+        "sale_date": "07/16",
+        "post_date": "07/16",
+        "description": "COSTCO WHSE #0627        FONTANA      CA",
+        "amount": 186.02,
+        "category": "Food & Dining"
+      },
+      {
+        "sale_date": "07/17",
+        "post_date": "07/17",
+        "description": "UBER   *EATS             HELP.UBER.COMCA",
+        "amount": 35.31,
+        "category": "Food & Dining"
+      },
+      {
+        "sale_date": "07/24",
+        "post_date": "07/24",
+        "description": "COSTCO GAS #0478         SAN BERNARDINCA",
+        "amount": 42.44,
+        "category": "Travel & Transportation"
       }
     ]
   },
   "individual_statements": [
     {
-      "filename": "statement_parsed",
-      "data": {
-        "transactions_by_cardholder": {
-          "MOHIT AGGARWAL": [
-            {
-              "sale_date": "07/05",
-              "post_date": "07/05",
-              "description": "HEADWAY                  HEADWAY.CO   NY",
-              "amount": 10.0,
-              "category": "Merchandise & Services"
-            },
-            {
-              "sale_date": "07/06",
-              "post_date": "07/06",
-              "description": "COSTCO WHSE #0678        RANCHO CUCAMOCA",
-              "amount": 312.41,
-              "category": "Food & Dining"
-            },
-            {
-              "sale_date": "07/12",
-              "post_date": "07/12",
-              "description": "TRADER JOE S #217        RANCHO CUCAMOCA",
-              "amount": 66.64,
-              "category": "Food & Dining"
-            },
-            {
-              "sale_date": "07/12",
-              "post_date": "07/12",
-              "description": "SQ *HANDEL'S RANCHO CUCAMRancho CucamoCA",
-              "amount": 13.5,
-              "category": "Food & Dining"
-            },
-            {
-              "sale_date": "07/13",
-              "post_date": "07/13",
-              "description": "HEADWAY                  HEADWAY.CO   NY",
-              "amount": 10.0,
-              "category": "Merchandise & Services"
-            },
-            {
-              "sale_date": "07/13",
-              "post_date": "07/13",
-              "description": "DESI BAZAAR CASH AND CAR RANCHO CUCAMOCA",
-              "amount": 1.99,
-              "category": "Food & Dining"
-            },
-            {
-              "sale_date": "07/13",
-              "post_date": "07/13",
-              "description": "HOMEGOODS 275            RCH CUCAMONGACA",
-              "amount": 18.31,
-              "category": "Merchandise & Services"
-            },
-            {
-              "sale_date": "07/14",
-              "post_date": "07/14",
-              "description": "ALDI 79061               FONTANA      CA",
-              "amount": 8.91,
-              "category": "Food & Dining"
-            },
-            {
-              "sale_date": "07/14",
-              "post_date": "07/14",
-              "description": "RING STANDARD PLAN       RING.COM     CA",
-              "amount": 9.99,
-              "category": "Bills & Subscriptions"
-            }
-          ],
-          "HIMANI SOOD": [
-            {
-              "sale_date": "07/03",
-              "post_date": "07/03",
-              "description": "COSTCO GAS #0686         MONTCLAIR    CA",
-              "amount": 42.49,
-              "category": "Travel & Transportation"
-            },
-            {
-              "sale_date": "07/08",
-              "post_date": "07/08",
-              "description": "COSTCO WHSE #0627        FONTANA      CA",
-              "amount": 2.71,
-              "category": "Food & Dining"
-            },
-            {
-              "sale_date": "07/08",
-              "post_date": "07/08",
-              "description": "COSTCO WHSE #0627        FONTANA      CA",
-              "amount": 145.98,
-              "category": "Food & Dining"
-            },
-            {
-              "sale_date": "07/14",
-              "post_date": "07/14",
-              "description": "COSTCO GAS #0686         MONTCLAIR    CA",
-              "amount": 40.09,
-              "category": "Travel & Transportation"
-            },
-            {
-              "sale_date": "07/16",
-              "post_date": "07/16",
-              "description": "COSTCO WHSE #0627        FONTANA      CA",
-              "amount": 186.02,
-              "category": "Food & Dining"
-            },
-            {
-              "sale_date": "07/17",
-              "post_date": "07/17",
-              "description": "UBER   *EATS             HELP.UBER.COMCA",
-              "amount": 35.31,
-              "category": "Food & Dining"
-            },
-            {
-              "sale_date": "07/24",
-              "post_date": "07/24",
-              "description": "COSTCO GAS #0478         SAN BERNARDINCA",
-              "amount": 42.44,
-              "category": "Travel & Transportation"
-            }
-          ]
-        },
-        "summary": {
-          "bank_name": "Citi",
-          "previous_balance": 1041.44,
-          "payments": 1041.44,
-          "credits": 36.28,
-          "purchases": 946.79,
-          "cash_advances": 0.0,
-          "fees": 0.0,
-          "interest": 0.0,
-          "new_balance": 910.51,
-          "rewards_balance": 179.26,
-          "available_credit_limit": 6089.0,
-          "total_transactions": 16,
-          "total_amount": 946.7900000000001
-        }
-      }
-    },
-    {
-      "filename": "statement2_parsed",
+      "filename": "statement1_parsed",
       "data": {
         "transactions_by_cardholder": {
           "MOHIT AGGARWAL": [
@@ -758,7 +606,7 @@
               "post_date": "Jun 30",
               "description": "WORKING ADVANTAGE800-565-3712FL",
               "amount": 957.58,
-              "category": "Merchandise & Services"
+              "category": "Uncategorized"
             },
             {
               "sale_date": "Jun 30",
@@ -841,6 +689,8 @@
         },
         "summary": {
           "bank_name": "Capital One",
+          "total_transactions": 41,
+          "total_amount": 2607.9,
           "previous_balance": 2255.91,
           "payments": 2255.91,
           "credits": 901.15,
@@ -849,33 +699,144 @@
           "fees": 0.0,
           "interest": 0.0,
           "new_balance": 1706.75,
-          "available_credit_limit": 18.0,
-          "rewards_balance": 31,
-          "total_amount": 2607.9,
-          "total_transactions": 41
+          "rewards_balance": 31736,
+          "available_credit_limit": 28293.25
+        }
+      }
+    },
+    {
+      "filename": "statement2_parsed",
+      "data": {
+        "transactions_by_cardholder": {
+          "MOHIT AGGARWAL": [
+            {
+              "sale_date": "07/05",
+              "post_date": "07/05",
+              "description": "HEADWAY                  HEADWAY.CO   NY",
+              "amount": 10.0,
+              "category": "Merchandise & Services"
+            },
+            {
+              "sale_date": "07/06",
+              "post_date": "07/06",
+              "description": "COSTCO WHSE #0678        RANCHO CUCAMOCA",
+              "amount": 312.41,
+              "category": "Food & Dining"
+            },
+            {
+              "sale_date": "07/12",
+              "post_date": "07/12",
+              "description": "TRADER JOE S #217        RANCHO CUCAMOCA",
+              "amount": 66.64,
+              "category": "Food & Dining"
+            },
+            {
+              "sale_date": "07/13",
+              "post_date": "07/13",
+              "description": "HEADWAY                  HEADWAY.CO   NY",
+              "amount": 10.0,
+              "category": "Merchandise & Services"
+            },
+            {
+              "sale_date": "07/13",
+              "post_date": "07/13",
+              "description": "HOMEGOODS 275            RCH CUCAMONGACA",
+              "amount": 18.31,
+              "category": "Merchandise & Services"
+            },
+            {
+              "sale_date": "07/14",
+              "post_date": "07/14",
+              "description": "ALDI 79061               FONTANA      CA",
+              "amount": 8.91,
+              "category": "Food & Dining"
+            },
+            {
+              "sale_date": "07/14",
+              "post_date": "07/14",
+              "description": "RING STANDARD PLAN       RING.COM     CA",
+              "amount": 9.99,
+              "category": "Bills & Subscriptions"
+            }
+          ],
+          "HIMANI SOOD": [
+            {
+              "sale_date": "07/03",
+              "post_date": "07/03",
+              "description": "COSTCO GAS #0686         MONTCLAIR    CA",
+              "amount": 42.49,
+              "category": "Travel & Transportation"
+            },
+            {
+              "sale_date": "07/08",
+              "post_date": "07/08",
+              "description": "COSTCO WHSE #0627        FONTANA      CA",
+              "amount": 2.71,
+              "category": "Food & Dining"
+            },
+            {
+              "sale_date": "07/08",
+              "post_date": "07/08",
+              "description": "COSTCO WHSE #0627        FONTANA      CA",
+              "amount": 145.98,
+              "category": "Food & Dining"
+            },
+            {
+              "sale_date": "07/14",
+              "post_date": "07/14",
+              "description": "COSTCO GAS #0686         MONTCLAIR    CA",
+              "amount": 40.09,
+              "category": "Travel & Transportation"
+            },
+            {
+              "sale_date": "07/16",
+              "post_date": "07/16",
+              "description": "COSTCO WHSE #0627        FONTANA      CA",
+              "amount": 186.02,
+              "category": "Food & Dining"
+            },
+            {
+              "sale_date": "07/17",
+              "post_date": "07/17",
+              "description": "UBER   *EATS             HELP.UBER.COMCA",
+              "amount": 35.31,
+              "category": "Food & Dining"
+            },
+            {
+              "sale_date": "07/24",
+              "post_date": "07/24",
+              "description": "COSTCO GAS #0478         SAN BERNARDINCA",
+              "amount": 42.44,
+              "category": "Travel & Transportation"
+            }
+          ]
+        },
+        "summary": {
+          "bank_name": "Citi",
+          "previous_balance": 1041.44,
+          "payments": 1041.44,
+          "credits": 36.28,
+          "purchases": 946.79,
+          "cash_advances": 0.0,
+          "fees": 0.0,
+          "interest": 0.0,
+          "new_balance": 910.51,
+          "available_credit_limit": 6089.0,
+          "rewards_balance": 179.26,
+          "total_transactions": 14,
+          "total_amount": 931.3000000000001
         }
       }
     }
   ],
   "combined_summary": {
     "total_files_processed": 2,
-    "total_transactions": 57,
-    "total_amount": 3554.69,
+    "total_transactions": 55,
+    "total_amount": 3539.2000000000003,
     "total_purchases": 3554.69,
     "total_payments": 3297.35
   },
   "summary_by_bank": {
-    "Citi": {
-      "total_statements": 1,
-      "total_transactions": 16,
-      "total_amount": 946.7900000000001,
-      "total_purchases": 946.79,
-      "total_payments": 1041.44,
-      "cardholders": [
-        "MOHIT AGGARWAL",
-        "HIMANI SOOD"
-      ]
-    },
     "Capital One": {
       "total_statements": 1,
       "total_transactions": 41,
@@ -886,33 +847,44 @@
         "MOHIT AGGARWAL",
         "HIMANI SOOD"
       ]
+    },
+    "Citi": {
+      "total_statements": 1,
+      "total_transactions": 14,
+      "total_amount": 931.3000000000001,
+      "total_purchases": 946.79,
+      "total_payments": 1041.44,
+      "cardholders": [
+        "MOHIT AGGARWAL",
+        "HIMANI SOOD"
+      ]
     }
   },
   "summary_by_cardholder": {
     "MOHIT AGGARWAL": {
-      "total_transactions": 29,
-      "total_amount": 1389.0700000000002,
-      "total_purchases": 1389.0700000000002,
+      "total_transactions": 27,
+      "total_amount": 1373.5800000000002,
+      "total_purchases": 1373.5800000000002,
       "total_payments": 0.0,
       "banks": {
-        "Citi": {
-          "total_transactions": 9,
-          "total_amount": 451.75000000000006,
-          "total_purchases": 451.75000000000006,
-          "total_payments": 0.0
-        },
         "Capital One": {
           "total_transactions": 20,
           "total_amount": 937.3200000000002,
           "total_purchases": 937.3200000000002,
           "total_payments": 0.0
+        },
+        "Citi": {
+          "total_transactions": 7,
+          "total_amount": 436.26000000000005,
+          "total_purchases": 436.26000000000005,
+          "total_payments": 0.0
         }
       },
       "category_totals": {
         "Merchandise & Services": 473.0,
-        "Food & Dining": 696.2700000000001,
-        "Bills & Subscriptions": 26.479999999999997,
+        "Food & Dining": 680.78,
         "Travel & Transportation": 186.96,
+        "Bills & Subscriptions": 26.479999999999997,
         "Uncategorized": 6.36
       }
     },
@@ -922,31 +894,32 @@
       "total_purchases": 2165.62,
       "total_payments": 0.0,
       "banks": {
-        "Citi": {
-          "total_transactions": 7,
-          "total_amount": 495.04,
-          "total_purchases": 495.04,
-          "total_payments": 0.0
-        },
         "Capital One": {
           "total_transactions": 21,
           "total_amount": 1670.58,
           "total_purchases": 1670.58,
           "total_payments": 0.0
+        },
+        "Citi": {
+          "total_transactions": 7,
+          "total_amount": 495.04,
+          "total_purchases": 495.04,
+          "total_payments": 0.0
         }
       },
       "category_totals": {
+        "Merchandise & Services": 323.44999999999993,
+        "Food & Dining": 710.5699999999999,
         "Travel & Transportation": 174.02,
-        "Food & Dining": 710.5700000000002,
-        "Merchandise & Services": 1281.0299999999997
+        "Uncategorized": 957.58
       }
     }
   },
   "category_totals": {
-    "Merchandise & Services": 1754.0299999999997,
-    "Food & Dining": 1406.8400000000001,
+    "Merchandise & Services": 796.45,
+    "Food & Dining": 1391.3500000000001,
+    "Travel & Transportation": 360.97999999999996,
     "Bills & Subscriptions": 26.479999999999997,
-    "Travel & Transportation": 360.98,
-    "Uncategorized": 6.36
+    "Uncategorized": 963.94
   }
 }
