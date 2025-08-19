@@ -65,7 +65,7 @@ async def run_data_analyzer(json_file_path: str, user_question: str):
     
     # Create the team with termination conditions
     stop_termination = TextMentionTermination("STOP")
-    max_message_termination = MaxMessageTermination(max_messages=30)  # Increased limit
+    max_message_termination = MaxMessageTermination(max_messages=50)  # Increased limit
     
     analysis_team = RoundRobinGroupChat(
         participants=[data_analyzer, executor_agent],
