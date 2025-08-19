@@ -47,7 +47,7 @@ async def run_data_analyzer(json_file_path: str, user_question: str):
     code_executor = DockerCommandLineCodeExecutor(
         work_dir=TEMP_DIR,
         image="amancevice/pandas",  # Changed to more standard Python image
-        timeout=600  # 5 minute timeout
+        timeout=1200  # 5 minute timeout
     )
     
     try:

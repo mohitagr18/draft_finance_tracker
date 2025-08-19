@@ -17,6 +17,7 @@ from utils.json_utils import extract_json_from_text
 from utils.termination_conditions import JSONSuccessTermination, CategorizationSuccessTermination
 from agents.prompts.statement_parser_message import STATEMENT_PARSER_SYSTEM_MESSAGE
 from agents.prompts.categorizer_message import CATEGORIZER_SYSTEM_MESSAGE
+from agents.prompts.task_message import TASK_MESSAGE
 
 
 async def process_single_statement(file_path: str, output_dir: str) -> Tuple[bool, str, dict]:
@@ -64,10 +65,30 @@ async def process_single_statement(file_path: str, output_dir: str) -> Tuple[boo
         )
 
         # Send the statement as initial task
+
         task = TextMessage(
-            content=f"statement_text = '''{statement_text}'''",
+            content=TASK_MESSAGE,
             source="user"
         )
+        # task = TextMessage(
+        #     content=f"statement_text = '''{statement_text}'''",
+        #     source="user"
+        # )
+
+        # task = TextMessage(content=f"""
+        #                    You need to write complete Python code that:
+        #                     1. Defines the statement_text variable with the bank statement content
+        #                     2. Parses the statement text to extract transactions
+        #                     3. Returns the data as JSON
+
+        #                     Here is the bank statement content to parse:
+
+        #                     {statement_text}
+
+        #                     Write complete Python code that assigns this content to statement_text and processes it.
+        #                     """,
+        #                     source="user"
+        #                     )
 
         parsing_result = await Console(parsing_team.run_stream(task=task))
 
