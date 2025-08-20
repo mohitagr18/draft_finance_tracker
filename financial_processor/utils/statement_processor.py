@@ -15,6 +15,7 @@ from autogen_agentchat.ui import Console
 from config.models import get_anthropic_client, get_openai_client
 from utils.file_utils import load_statement
 from utils.json_utils import extract_json_from_text
+from utils.quality_checks import *
 from utils.termination_conditions import JSONSuccessTermination, CategorizationSuccessTermination
 from agents.prompts.statement_parser_message import STATEMENT_PARSER_SYSTEM_MESSAGE
 from agents.prompts.categorizer_message import CATEGORIZER_SYSTEM_MESSAGE
@@ -173,6 +174,13 @@ async def process_single_statement(file_path: str, output_dir: str) -> Tuple[boo
         # Use stage 1 result as fallback
         if final_parsed_json is None:
             final_parsed_json = parsed_json
+
+        # Apply the quality gate to validate and clean the result
+        ok, msg, cleaned_json = quality_gate(statement_text, final_parsed_json)
+        if not ok:
+            await code_executor.stop()
+            return False, f"Low-quality parse: {msg}", {}
+        final_parsed_json = cleaned_json
 
         # Save individual file result
         filename = Path(file_path).stem
