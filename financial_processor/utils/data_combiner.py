@@ -52,7 +52,7 @@ def combine_parsed_data(individual_files: List[str]) -> dict:
             if "transactions_by_cardholder" in data:
                 for cardholder, transactions in data["transactions_by_cardholder"].items():
                     # Skip empty or non-list values to reduce garbage
-                    if not isinstance(transactions, list) or len(transactions) == 0:
+                    if not isinstance(transactions, list) or not transactions:
                         continue
                     # Initialize cardholder in combined transactions
                     if cardholder not in combined["combined_transactions_by_cardholder"]:

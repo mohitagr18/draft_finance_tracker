@@ -23,7 +23,7 @@ from agents.prompts.task_message import TASK_MESSAGE
 from config.constants import TEMP_DIR
 
 
-async def process_single_statement(file_path: str, output_dir: str) -> Tuple[bool, str, dict]:
+async def process_single_statement(file_path: str, output_dir: str, retry_level: int = 0) -> Tuple[bool, str, dict]:
     """
     Process a single statement file.
     Returns: (success: bool, error_message: str, parsed_data: dict)
@@ -176,7 +176,8 @@ async def process_single_statement(file_path: str, output_dir: str) -> Tuple[boo
             final_parsed_json = parsed_json
 
         # Apply the quality gate to validate and clean the result
-        ok, msg, cleaned_json = quality_gate(statement_text, final_parsed_json)
+        # Apply quality gate with the current retry_level
+        ok, msg, cleaned_json = quality_gate(statement_text, final_parsed_json, retry_level=retry_level)
         if not ok:
             await code_executor.stop()
             return False, f"Low-quality parse: {msg}", {}

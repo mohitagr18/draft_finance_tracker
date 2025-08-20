@@ -30,7 +30,7 @@ from utils.file_utils import ensure_directories
 load_dotenv()
 
 
-async def run_complete_pipeline(input_pdf_dir: str, user_question: str):
+async def run_complete_pipeline(input_pdf_dir: str, user_question: str, parse_retries: int):
     """
     Run the complete pipeline:
     1. Convert PDFs to text files
@@ -49,7 +49,7 @@ async def run_complete_pipeline(input_pdf_dir: str, user_question: str):
     print("\n🔄 STEP 1: Converting PDFs to text files...")
     print("-" * 50)
     
-    text_files = convert_pdfs_in_dir(input_pdf_dir, TEMP_DIR)
+    text_files = convert_pdfs_in_dir(input_pdf_dir, constants.TEMP_DIR)
     
     if not text_files:
         print("❌ No PDF files were successfully converted. Pipeline stopped.")
@@ -63,8 +63,9 @@ async def run_complete_pipeline(input_pdf_dir: str, user_question: str):
     print("\n🔄 STEP 2: Parsing bank statements...")
     print("-" * 50)
     
-    parsed_data = await run_parsing_agent(text_files)
-    
+    # parsed_data = await run_parsing_agent(text_files)
+    parsed_data = await run_parsing_agent(text_files, max_retries=parse_retries)
+
     if not parsed_data:
         print("❌ No bank statements were successfully parsed. Pipeline stopped.")
         return
@@ -101,7 +102,7 @@ async def run_complete_pipeline(input_pdf_dir: str, user_question: str):
     print(f"   - Combined data: {combined_json_path}")
     
     # Check final output
-    final_output_path = Path(FINAL_OUTPUT_DIR)
+    final_output_path = Path(constants.FINAL_OUTPUT_DIR)
     if final_output_path.exists():
         reports = list(final_output_path.glob("*.md"))
         charts = list(final_output_path.glob("*.png"))
@@ -150,6 +151,12 @@ Examples:
         default=FINAL_OUTPUT_DIR,
         help=f"Output directory for final reports and charts (default: {FINAL_OUTPUT_DIR})"
     )
+    parser.add_argument(
+    "--parse-retries",
+    type=int,
+    default=2,
+    help="Number of retries per statement with a progressively relaxed quality gate."
+)
     
     args = parser.parse_args()
     
@@ -190,7 +197,7 @@ Examples:
     
     # Run the complete pipeline
     try:
-        asyncio.run(run_complete_pipeline(args.input_dir, args.question))
+        asyncio.run(run_complete_pipeline(args.input_dir, args.question, args.parse_retries))
     except KeyboardInterrupt:
         print("\n⚠️ Pipeline interrupted by user")
     except Exception as e:
