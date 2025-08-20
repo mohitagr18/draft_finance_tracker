@@ -17,4 +17,5 @@ OPENAI_API_KEY = os.getenv("OPENAI_API_KEY2")
 TEMP_DIR = "temp"
 OUTPUT_DIR = "temp/parsed_statements"
 FINAL_OUTPUT_DIR = "output"
-COMBINED_JSON_FILE = "combined_parsed_data.json"
+# COMBINED_JSON_FILE = "combined_parsed_data.json"
+COMBINED_JSON_FILE = os.path.join(TEMP_DIR, "combined_data.json")

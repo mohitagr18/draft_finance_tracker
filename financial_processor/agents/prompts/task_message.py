@@ -1,5 +1,5 @@
 TASK_MESSAGE = """
-Please write Python code to parse the following bank statement text and extract transaction data as JSON.
+Please write Python code to parse the bank statement text saved in a UTF-8 file named 'statement.txt' in the current working directory and extract transaction data as JSON.
 
 Start your code with this helper function for package management:
 ```python
@@ -22,10 +22,6 @@ def ensure_package(package_name, import_name=None):
 # Example usage:
 # pd = ensure_package("pandas")
 # plt = ensure_package("matplotlib", "matplotlib.pyplot")
-
-Here is the bank statement content to parse:
-
-{statement_text}
 
 Use the helper function to install any packages you need, then write code to parse the statement text into structured JSON.
 """

@@ -46,8 +46,9 @@ async def run_data_analyzer(json_file_path: str, user_question: str):
     # Create code executor with improved configuration
     code_executor = DockerCommandLineCodeExecutor(
         work_dir=TEMP_DIR,
-        image="amancevice/pandas",  # Changed to more standard Python image
-        timeout=1200  # 5 minute timeout
+        image="amancevice/pandas",  
+        # image="demisto/pandas", 
+        timeout=1200  
     )
     
     try:
@@ -84,17 +85,17 @@ async def run_data_analyzer(json_file_path: str, user_question: str):
         print(f"⚠ Failed to create output directory: {e}")
         return
     
-    # Copy the JSON file to ensure it's accessible in the Docker container
-    try:
-        # Read and write to ensure the file is in the working directory
-        with open(json_file_path, 'r') as src:
-            data_content = src.read()
-        with open('./combined_data.json', 'w') as dst:
-            dst.write(data_content)
-        print(f"✅ Copied data file to working directory: ./combined_data.json")
-    except Exception as e:
-        print(f"⚠ Failed to copy data file: {e}")
-        return
+    # # Copy the JSON file to ensure it's accessible in the Docker container
+    # try:
+    #     # Read and write to ensure the file is in the working directory
+    #     with open(json_file_path, 'r') as src:
+    #         data_content = src.read()
+    #     with open('./combined_data.json', 'w') as dst:
+    #         dst.write(data_content)
+    #     print(f"✅ Copied data file to working directory: ./combined_data.json")
+    # except Exception as e:
+    #     print(f"⚠ Failed to copy data file: {e}")
+    #     return
     
     # Prepare the initial task message
     initial_message = f"""

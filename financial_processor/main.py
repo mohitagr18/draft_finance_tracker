@@ -16,6 +16,7 @@ import sys
 import traceback
 from pathlib import Path
 from dotenv import load_dotenv
+from config import constants
 
 # Import our modular components
 from config.models import validate_api_keys
@@ -68,10 +69,16 @@ async def run_complete_pipeline(input_pdf_dir: str, user_question: str):
         print("❌ No bank statements were successfully parsed. Pipeline stopped.")
         return
     
-    # Save the combined JSON data
-    combined_json_path = COMBINED_JSON_FILE
-    with open(combined_json_path, "w", encoding="utf-8") as f:
-        json.dump(parsed_data, f, indent=2, ensure_ascii=False)
+    # Write combined data directly to temp/combined_data.json
+    with open(constants.COMBINED_JSON_FILE, "w", encoding="utf-8") as f:
+        json.dump(parsed_data, f, ensure_ascii=False, indent=2)
+
+    combined_json_path = constants.COMBINED_JSON_FILE  # pass this to the analyzer later
+    
+    # # Save the combined JSON data
+    # combined_json_path = COMBINED_JSON_FILE
+    # with open(combined_json_path, "w", encoding="utf-8") as f:
+    #     json.dump(parsed_data, f, indent=2, ensure_ascii=False)
     
     print(f"✅ Successfully parsed and combined bank statements")
     print(f"   - Combined data saved to: {combined_json_path}")
@@ -151,6 +158,8 @@ Examples:
     constants.TEMP_DIR = args.temp_dir
     constants.FINAL_OUTPUT_DIR = args.output_dir
     constants.OUTPUT_DIR = f"{args.temp_dir}/parsed_statements"
+    constants.COMBINED_JSON_FILE = str(Path(constants.TEMP_DIR) / "combined_data.json")
+
     
     # Validate input directory
     if not Path(args.input_dir).exists():
@@ -173,8 +182,8 @@ Examples:
     print(f"   - Question: {args.question}")
     print(f"   - Temp directory: {constants.TEMP_DIR}")
     print(f"   - Output directory: {constants.FINAL_OUTPUT_DIR}")
-    print(f"   - Anthropic model: {constants.ANTHROPIC_MODEL}")
-    print(f"   - OpenAI model: {constants.OPENAI_MODEL}")
+    # print(f"   - Anthropic model: {constants.ANTHROPIC_MODEL}")
+    # print(f"   - OpenAI model: {constants.OPENAI_MODEL}")
     
     # Ensure directories exist
     ensure_directories(constants.TEMP_DIR, constants.FINAL_OUTPUT_DIR, constants.OUTPUT_DIR)

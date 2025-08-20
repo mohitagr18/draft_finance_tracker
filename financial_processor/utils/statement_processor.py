@@ -1,6 +1,7 @@
 """Single statement processing utilities."""
 
 import json
+import os
 from pathlib import Path
 from typing import Tuple
 
@@ -11,13 +12,14 @@ from autogen_agentchat.messages import TextMessage
 from autogen_ext.code_executors.docker import DockerCommandLineCodeExecutor
 from autogen_agentchat.ui import Console
 
-from config.models import get_anthropic_client
+from config.models import get_anthropic_client, get_openai_client
 from utils.file_utils import load_statement
 from utils.json_utils import extract_json_from_text
 from utils.termination_conditions import JSONSuccessTermination, CategorizationSuccessTermination
 from agents.prompts.statement_parser_message import STATEMENT_PARSER_SYSTEM_MESSAGE
 from agents.prompts.categorizer_message import CATEGORIZER_SYSTEM_MESSAGE
 from agents.prompts.task_message import TASK_MESSAGE
+from config.constants import TEMP_DIR
 
 
 async def process_single_statement(file_path: str, output_dir: str) -> Tuple[bool, str, dict]:
@@ -27,9 +29,15 @@ async def process_single_statement(file_path: str, output_dir: str) -> Tuple[boo
     """
     try:
         statement_text = load_statement(file_path)
+        work_dir = "temp" # same as DockerCommandLineCodeExecutor(work_dir="temp")
+        os.makedirs(work_dir, exist_ok=True)
+        input_fp = Path(work_dir) / "statement.txt"
+        with open(input_fp, "w", encoding="utf-8") as f:
+            f.write(statement_text)
 
         # Create the model client
         model_client = get_anthropic_client()
+        # model_client = get_openai_client()
 
         # Assistant agent: writes code to parse the statement
         assistant = AssistantAgent(
@@ -40,7 +48,11 @@ async def process_single_statement(file_path: str, output_dir: str) -> Tuple[boo
         )
 
         # Code executor
-        code_executor = DockerCommandLineCodeExecutor(work_dir="temp")
+        code_executor = DockerCommandLineCodeExecutor(
+            work_dir=TEMP_DIR,
+            image="amancevice/pandas",  
+            # image="demisto/pandas"
+            )
         await code_executor.start()
 
         # Code execution agent
