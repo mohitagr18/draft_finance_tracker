@@ -1,0 +1,199 @@
+import json
+import re
+
+def extract_cardholder_names(lines):
+    cardholder_names = []
+    cardholder_patterns = [
+        re.compile(r'^CARDHOLDER(?: NAME)?:\s*(.+)$', re.I),
+        re.compile(r'^\s*(.+?)\s*-\s*Card ending in\s+\d{4}', re.I),
+        re.compile(r'^\s*(?P<name>[A-Z][A-Z ]{2,})\s*$', re.I)
+    ]
+    next_is_name = False
+    for line in lines:
+        l_strip = line.strip()
+        if next_is_name:
+            if l_strip and not l_strip.isupper() and not l_strip.isdigit() and not l_strip.startswith("Card ending in"):
+                cardholder_names.append(l_strip)
+                next_is_name = False
+                continue
+        for pat in cardholder_patterns:
+            m = pat.match(l_strip)
+            if m:
+                name = m.group(1).strip()
+                if name and name not in cardholder_names and not name.isdigit() and len(name) > 1:
+                    cardholder_names.append(name)
+                break
+        if l_strip.upper().startswith('CARDHOLDER SUMMARY'):
+            next_is_name = True
+    return cardholder_names
+
+def get_account_summary(lines):
+    # Only parse within Account Summary block.
+    acc_sum_start = None
+    acc_sum_end = None
+    for i, line in enumerate(lines):
+        if 'ACCOUNT SUMMARY' in line.upper():
+            acc_sum_start = i
+            break
+    if acc_sum_start is None:
+        return {}
+
+    # Search end: stop at blank line, or significant next heading/section.
+    end_keywords = ['PAYMENT INFORMATION', 'TRANSACTIONS', 'CARDHOLDER', 'REWARDS SUMMARY', 'DETAILS OF TRANSACTIONS']
+    for j in range(acc_sum_start+1, len(lines)):
+        if not lines[j].strip():
+            acc_sum_end = j
+            break
+        l_up = lines[j].upper()
+        if any(k in l_up for k in end_keywords):
+            acc_sum_end = j
+            break
+    if acc_sum_end is None:
+        acc_sum_end = min(acc_sum_start+12, len(lines))
+
+    sum_lines = [lines[i] for i in range(acc_sum_start, acc_sum_end)]
+
+    summary_mapping = {
+        'bank_name':        lambda l: l and l.strip(),
+        'previous_balance': r"(?:PREVIOUS|PRIOR)\s+BALANCE",
+        'payments':         r"PAYMENTS",
+        'credits':          r"CREDITS",
+        'purchases':        r"PURCHASES",
+        'cash_advances':    r"CASH ADVANCES",
+        'fees':             r"FEES",
+        'interest':         r"INTEREST",
+        'new_balance':      r"NEW BALANCE",
+        'rewards_balance':  r"REWARDS(?: BALANCE)?",
+        'available_credit_limit': r"AVAILABLE (?:CREDIT )?LIMIT",
+        'total_transactions':r"TOTAL TRANSACTIONS",
+        'total_amount':     r"TOTAL AMOUNT",
+    }
+    result = dict.fromkeys(summary_mapping.keys(), None)
+    numeric_re = re.compile(r'-?\$?\(?([0-9,]+(?:\.\d{2})?)\)?')
+    for idx, line in enumerate(sum_lines):
+        l_strip = line.strip()
+        if idx==0 and not l_strip.upper().startswith('ACCOUNT SUMMARY'):
+            result['bank_name'] = l_strip
+        for key, pat in summary_mapping.items():
+            if key == 'bank_name':
+                continue
+            if isinstance(pat,str):
+                if re.search(pat, l_strip, re.I):
+                    nums = numeric_re.findall(l_strip)
+                    if nums:
+                        v = float(nums[-1].replace(',',''))
+                        if any(s in l_strip.lower() for s in ['payment','credit']) or '(' in l_strip:
+                            v = -abs(v)
+                        result[key] = v
+    # Normalize required fields
+    for key in ['total_transactions','total_amount']:
+        if result[key] is not None:
+            try:
+                if '.' in str(result[key]):
+                    result[key] = float(result[key])
+                else:
+                    result[key] = int(result[key])
+            except:
+                result[key] = result[key]
+    return result
+
+def parse_transactions(lines, cardholder_names):
+    transactions_by_cardholder = { name: [] for name in cardholder_names}
+    current_cardholder = None
+    cardholder_re = [
+        re.compile(r'^CARDHOLDER(?: NAME)?:\s*(.+)$', re.I),
+        re.compile(r'^\s*(.+?)\s*-\s*Card ending in\s+\d{4}', re.I)
+    ]
+    # Dates: MM/DD or M/D
+    date_pat = r'\b(\d{1,2}/\d{1,2})\b'
+    amt_pat = r'(-?\(?\$[0-9,]+\.\d{2}\)?)|(-?\(?[0-9,]+\.\d{2}\)?)'
+    date_re = re.compile(date_pat)
+    amt_re = re.compile(amt_pat)
+    # Heuristics to avoid section headings etc.
+    skip_keywords = ["DATE", "AMOUNT", "DESCRIPTION", "PURCHASE", "POSTED", "ACCOUNT", "SUMMARY", "PAYMENT", "TRANSACTION", "TYPE", "DETAILS"]
+    found_cardholders = set()
+    for i, line in enumerate(lines):
+        l_strip = line.strip()
+        # Set current cardholder context
+        for pat in cardholder_re:
+            m = pat.match(l_strip)
+            if m:
+                nm = m.group(1).strip()
+                if nm in cardholder_names:
+                    current_cardholder = nm
+                    found_cardholders.add(nm)
+                break
+        # For statements like: "JOHN DOE", "Card ending in ####"
+        for nm in cardholder_names:
+            if l_strip.upper() == nm.upper():
+                current_cardholder = nm
+                found_cardholders.add(nm)
+        # Heuristic: section headers for another cardholder
+        for nm in cardholder_names:
+            if (f"{nm.upper()} - CARD ENDING IN") in l_strip.upper():
+                current_cardholder = nm
+                found_cardholders.add(nm)
+        # Transaction line: look for 2 date patterns.
+        if sum(1 for m in date_re.finditer(l_strip))>=2:
+            # Parse sale_date, post_date, then rest.
+            dates = [m.group(1) for m in date_re.finditer(l_strip)]
+            sale_date, post_date = dates[0], dates[1]
+            # Remove dates to parse rest
+            text = l_strip
+            text = date_re.sub('', text, count=2).strip()
+            # Extract amount: last $ or float on line
+            amt_match = None
+            for match in amt_re.finditer(text):
+                amt_match = match.group(0)
+            amount = None
+            if amt_match:
+                raw_amt = amt_match.replace('$','').replace(',','').replace('(','-').replace(')','')
+                try:
+                    amount = abs(float(raw_amt))
+                except:
+                    continue
+                # Remove amount for description
+                desc = text.replace(amt_match, '').strip()
+            else:
+                desc = text.strip()
+            # Remove leading/trailing - or stray characters from desc
+            desc = desc.strip('-').strip()
+            # Avoid non-transactions
+            if any(k in l_strip.upper() for k in skip_keywords):
+                continue
+            # Assign to current cardholder if set, else attempt to default
+            nm = current_cardholder if current_cardholder in cardholder_names else None
+            # Rare: try to assign by backtracking lines nearby if not set
+            if nm is None:
+                for delta in range(1,6):
+                    if i-delta < 0:
+                        break
+                    prev = lines[i-delta].strip()
+                    for nmx in cardholder_names:
+                        if nmx.upper() in prev.upper():
+                            nm = nmx
+                            break
+                    if nm: break
+            if nm:
+                transactions_by_cardholder[nm].append({
+                    'sale_date': sale_date,
+                    'post_date': post_date,
+                    'description': desc,
+                    'amount': amount
+                })
+    # If any cardholder has no transactions but is present in the statement, still emit empty list (rule 4).
+    return transactions_by_cardholder
+
+with open('statement.txt', encoding='utf-8') as f:
+    lines = f.readlines()
+
+cardholder_names = extract_cardholder_names(lines)
+account_summary = get_account_summary(lines)
+transactions_by_cardholder = parse_transactions(lines, cardholder_names)
+
+parsed = {
+    'transactions_by_cardholder': transactions_by_cardholder,
+    'summary': account_summary
+}
+
+print(json.dumps(parsed, ensure_ascii=False))

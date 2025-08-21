@@ -1,0 +1,192 @@
+import re
+import json
+
+def parse_statement():
+    with open('statement.txt', encoding='utf-8') as f:
+        lines = [line.rstrip() for line in f]
+
+    # Helper regex patterns
+    date_pat = r'(?P<sale_date>\d{1,2}/\d{1,2})\s+(?P<post_date>\d{1,2}/\d{1,2})'
+    amount_pat = r'([+-]?\$?\d{1,3}(?:,\d{3})*(?:\.\d{2}))$'
+    amount_extract = re.compile(amount_pat)
+    txn_line_re = re.compile(rf'^{date_pat}\s+(?P<desc>.+?)\s+{amount_pat}')
+    
+    # 1. Extract Account Summary Block
+    summary_block = []
+    in_summary = False
+    account_summary_keywords = [
+        "Account Summary", "Summary of Account", "Account at a glance"
+    ]
+    end_summary_keywords = [
+        "Payment Information", "Transactions", "CARDHOLDER SUMMARY", "Cardholder", "Purchases", "Payments and Credits"
+    ]
+    for idx, line in enumerate(lines):
+        # Find where Account Summary starts
+        if any(line.strip().startswith(word) for word in account_summary_keywords):
+            in_summary = True
+            continue
+        if in_summary:
+            # End when another known block starts
+            if (any(line.strip().startswith(word) for word in end_summary_keywords)
+                or not line.strip()):
+                break
+            summary_block.append(line)
+
+    summary_mapping = {
+        'Bank Name': 'bank_name',
+        'Previous balance': 'previous_balance',
+        'Payments': 'payments',
+        'Credits': 'credits',
+        'Purchases': 'purchases',
+        'Cash advances': 'cash_advances',
+        'Fees charged': 'fees',
+        'Interest charged': 'interest',
+        'New balance': 'new_balance',
+        'Rewards balance': 'rewards_balance',
+        'Available credit limit': 'available_credit_limit'
+    }
+
+    summary = {
+        'bank_name': '',
+        'total_transactions': 0,
+        'total_amount': 0.0,
+        'previous_balance': 0.0,
+        'payments': 0.0,
+        'credits': 0.0,
+        'purchases': 0.0,
+        'cash_advances': 0.0,
+        'fees': 0.0,
+        'interest': 0.0,
+        'new_balance': 0.0,
+        'rewards_balance': 0.0,
+        'available_credit_limit': 0.0
+    }
+    for line in summary_block:
+        for label, key in summary_mapping.items():
+            if label.lower() in line.lower():
+                # Extract trailing number
+                m = amount_extract.search(line.replace(',', ''))
+                if m:
+                    val_str = m.group(1).replace('$','').replace(',','')
+                    try:
+                        val = float(val_str)
+                    except ValueError:
+                        val = 0.0
+                    summary[key] = val
+                else:
+                    # Fallback: set as string for bank_name or non-numeric field
+                    summary[key] = line.strip().replace(label, '', 1).strip()
+                break
+
+    # 2. Extract cardholders
+    transactions_by_cardholder = {}
+    cardholders = []
+    cardholder_indices = []
+
+    # Cardholder summary blocks tend to be named e.g. "Cardholder: JOHN DOE" or
+    # "JOHN DOE   Card ending in 1234" or "CARDHOLDER SUMMARY", etc.
+    # We'll find patterns that represent the start of each cardholder's section.
+    for idx, line in enumerate(lines):
+        line_strip = line.strip()
+        # Pattern A: "Cardholder: NAME"
+        m = re.match(r'^Cardholder\s*:\s*(.+)$', line_strip, re.I)
+        if m:
+            name = m.group(1).strip()
+            if name not in cardholders:
+                cardholders.append(name)
+                cardholder_indices.append((name, idx))
+        # Pattern B: "NAME   Card ending in 1234"
+        m = re.match(r'^([A-Z][A-Z\s\.\-]+)\s+Card ending in', line_strip, re.I)
+        if m:
+            name = m.group(1).strip()
+            if name not in cardholders:
+                cardholders.append(name)
+                cardholder_indices.append((name, idx))
+        # Pattern C: plain block header, if 'CARDHOLDER SUMMARY' or 'CARDHOLDER:' exists above
+        if re.match(r'^[A-Z][A-Z\s\.\-]+$', line_strip):
+            # Only if next line looks like 'Card ending in' or first txn line
+            if idx+1 < len(lines) and (
+                re.search(r'Card ending in', lines[idx+1], re.I) or
+                re.match(date_pat, lines[idx+1])
+            ):
+                name = line_strip.strip()
+                if name not in cardholders:
+                    cardholders.append(name)
+                    cardholder_indices.append((name, idx))
+                
+    # Fallback: If only one cardholder, but their name is not labeled, guess from transaction block
+    if not cardholders:
+        for idx, line in enumerate(lines):
+            if re.match(date_pat, line):
+                if idx > 2:
+                    suspect = lines[idx-1].strip().replace(':','')
+                    if suspect and suspect.upper() != 'TRANSACTIONS':
+                        cardholders = [suspect]
+                        cardholder_indices = [(suspect, idx-1)]
+                        break
+                break
+
+    # 3. For each cardholder, find their transaction block and parse transactions
+    # For last cardholder, their block ends either at next cardholder or at file end
+    for i, (name, startidx) in enumerate(cardholder_indices):
+        # Isolate block:
+        endidx = len(lines)
+        if i+1 < len(cardholder_indices):
+            endidx = cardholder_indices[i+1][1]
+        # Find txn lines with leading date columns for this block
+        txns = []
+        for lineno in range(startidx, endidx):
+            line = lines[lineno]
+            txn_m = txn_line_re.match(line)
+            if txn_m:
+                sale_date = txn_m.group('sale_date')
+                post_date = txn_m.group('post_date')
+                desc = txn_m.group('desc').strip()
+                amt_str = txn_m.group(4).replace('$','').replace(',','')
+                try:
+                    amount = abs(float(amt_str))
+                except:
+                    continue
+                txns.append({
+                    'sale_date': sale_date,
+                    'post_date': post_date,
+                    'description': desc,
+                    'amount': amount
+                })
+
+        # If not found but this is only cardholder, try to scan whole file
+        if not txns and len(cardholder_indices) == 1 and name == cardholder_indices[0][0]:
+            for line in lines:
+                txn_m = txn_line_re.match(line)
+                if txn_m:
+                    sale_date = txn_m.group('sale_date')
+                    post_date = txn_m.group('post_date')
+                    desc = txn_m.group('desc').strip()
+                    amt_str = txn_m.group(4).replace('$','').replace(',','')
+                    try:
+                        amount = abs(float(amt_str))
+                    except:
+                        continue
+                    txns.append({
+                        'sale_date': sale_date,
+                        'post_date': post_date,
+                        'description': desc,
+                        'amount': amount
+                    })
+
+        if txns:
+            transactions_by_cardholder[name] = txns
+
+    # 4. Add up total transactions/amount (counting all transactions for all cardholders)
+    all_txns = [txn for txns in transactions_by_cardholder.values() for txn in txns]
+    summary['total_transactions'] = len(all_txns)
+    summary['total_amount'] = round(sum(t['amount'] for t in all_txns), 2)
+
+    output = {
+        'transactions_by_cardholder': transactions_by_cardholder,
+        'summary': summary
+    }
+
+    print(json.dumps(output, ensure_ascii=False))
+
+parse_statement()

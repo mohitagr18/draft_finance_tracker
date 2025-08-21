@@ -1,0 +1,140 @@
+import re
+import json
+
+def parse_statement(filepath):
+    with open(filepath, 'r', encoding='utf-8') as f:
+        lines = [l.rstrip('\n') for l in f]
+
+    # --- Summary Extraction from "Account Summary" block ---
+    summary_labels = {
+        'Bank Name': 'bank_name',
+        'Total Transactions': 'total_transactions',
+        'Total Amount': 'total_amount',
+        'Previous Balance': 'previous_balance',
+        'Payments': 'payments',
+        'Credits': 'credits',
+        'Purchases': 'purchases',
+        'Cash Advances': 'cash_advances',
+        'Fees': 'fees',
+        'Interest': 'interest',
+        'New Balance': 'new_balance',
+        'Rewards Balance': 'rewards_balance',
+        'Available Credit Limit': 'available_credit_limit',
+    }
+    summary = {v: None for v in summary_labels.values()}
+    account_summary_start = None
+    account_summary_end = None
+
+    # Locate the "Account Summary" section
+    for i, line in enumerate(lines):
+        if re.match(r'\s*Account Summary\s*', line, re.I):
+            account_summary_start = i
+            break
+    # End is either next empty line after start, or next heading
+    if account_summary_start is not None:
+        for j in range(account_summary_start+1, len(lines)):
+            if lines[j].strip() == '' or re.match(r'^[A-Z][A-Za-z ]{3,}:?$', lines[j]): # heading or empty
+                account_summary_end = j
+                break
+        if account_summary_end is None:
+            account_summary_end = len(lines)
+        # Map keys
+        for line in lines[account_summary_start:account_summary_end]:
+            for k, v in summary_labels.items():
+                pattern = r'^' + re.escape(k) + r'[:\s]+([-\d,\.]+)'
+                m = re.search(pattern, line, re.I)
+                if m:
+                    value = m.group(1).replace(',', '') # Remove comma
+                    if v in ('bank_name', ):
+                        summary[v] = m.group(1).strip()
+                    elif v in ('rewards_balance',): # Could be float or int
+                        try:
+                            summary[v] = float(value)
+                        except:
+                            try:
+                                summary[v] = int(value)
+                            except:
+                                summary[v] = value
+                    elif v == 'total_transactions':
+                        try:
+                            summary[v] = int(value)
+                        except:
+                            summary[v] = value
+                    else:
+                        try:
+                            summary[v] = float(value)
+                        except:
+                            summary[v] = value
+
+    # --- Cardholder & Transaction Extraction ---
+    cardholder_re = re.compile(r'^(?:Cardholder|CARDHOLDER):?\s*([A-Za-z0-9 \',\.-]+)')
+    card_ending_re = re.compile(r'^Card ending in\s*\d{4}', re.I)
+    transaction_re = re.compile(
+        r'^\s*(\d{1,2}/\d{1,2})\s+(\d{1,2}/\d{1,2})\s+(.+?)\s+(-?\$?[\d,]+\.\d{2})\s*$'
+    )
+    alt_transaction_re = re.compile(
+        r'^\s*(\d{1,2}/\d{1,2})\s+(\d{1,2}/\d{1,2})\s+(.+?)\s+(-?[\d,]+\.\d{2})\s*$'
+    )
+
+    transactions_by_cardholder = {}
+    current_cardholder = None
+    # Some banks use a block like:
+    # CARDHOLDER SUMMARY
+    # John Example
+    #   Card ending in 1234
+    #   ...transactions...
+    # Repeat
+    in_tx_section = False
+    for idx, line in enumerate(lines):
+        # Detect new cardholder
+        m_cardholder = cardholder_re.match(line.strip())
+        if m_cardholder:
+            name = m_cardholder.group(1).strip()
+            if name and not name.upper().startswith('SUMMARY'):
+                current_cardholder = name
+                transactions_by_cardholder.setdefault(current_cardholder, [])
+                continue
+
+        # Try inline style: Cardholder's name is directly above card ending or above transactions
+        if card_ending_re.match(line.strip()):
+            # Search upwards for previous non-empty line as cardholder name
+            for rev in range(idx-1, -1, -1):
+                cand = lines[rev].strip()
+                if not cand or 'summary' in cand.lower():
+                    break
+                if (re.match(r'^[A-Z][a-zA-Z ,\'-]{2,}$', cand)
+                    and not card_ending_re.match(cand)):
+                    current_cardholder = cand
+                    transactions_by_cardholder.setdefault(current_cardholder, [])
+                    break
+            continue
+
+        # Transaction line ?
+        tx_match = transaction_re.match(line) or alt_transaction_re.match(line)
+        if tx_match and current_cardholder:
+            sale_date, post_date, desc, amount = tx_match.groups()
+            # normalize amount
+            amount = amount.replace('$', '').replace(',', '').strip()
+            try:
+                a_float = float(amount)
+            except:
+                continue
+            transactions_by_cardholder.setdefault(current_cardholder, []).append({
+                'sale_date': sale_date,
+                'post_date': post_date,
+                'description': desc.strip(),
+                'amount': abs(a_float), # always positive per requirement
+            })
+
+    # Remove empty cardholders if no transactions, but keep if multiple cardholders (can be rare)
+    all_cardholders = list(transactions_by_cardholder.keys())
+    if len(all_cardholders) == 1 and not transactions_by_cardholder[all_cardholders[0]]:
+        transactions_by_cardholder = {}
+
+    parsed = {
+        'transactions_by_cardholder': transactions_by_cardholder,
+        'summary': summary,
+    }
+    return parsed
+
+print(json.dumps(parse_statement('statement.txt'), ensure_ascii=False))

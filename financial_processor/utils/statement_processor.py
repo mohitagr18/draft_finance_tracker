@@ -37,8 +37,8 @@ async def process_single_statement(file_path: str, output_dir: str, retry_level:
             f.write(statement_text)
 
         # Create the model client
-        model_client = get_anthropic_client()
-        # model_client = get_openai_client()
+        # model_client = get_anthropic_client()
+        model_client = get_openai_client()
 
         # Assistant agent: writes code to parse the statement
         assistant = AssistantAgent(
@@ -72,9 +72,10 @@ async def process_single_statement(file_path: str, output_dir: str, retry_level:
 
         # STAGE 1: Assistant + Executor to parse the statement
         json_termination = JSONSuccessTermination()
+        max_message_termination = MaxMessageTermination(max_messages=20)
         parsing_team = RoundRobinGroupChat(
             participants=[assistant, executor_agent],
-            termination_condition=json_termination
+            termination_condition = json_termination | max_message_termination
         )
 
         # Send the statement as initial task
@@ -125,7 +126,7 @@ async def process_single_statement(file_path: str, output_dir: str, retry_level:
         )
 
         categorization_termination = CategorizationSuccessTermination()
-        max_message_termination = MaxMessageTermination(max_messages=10)
+        max_message_termination = MaxMessageTermination(max_messages=5)
         
         categorizer_team = RoundRobinGroupChat(
             participants=[categorizer_agent],
