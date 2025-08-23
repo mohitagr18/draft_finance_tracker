@@ -106,6 +106,86 @@ async def process_single_statement(file_path: str, output_dir: str, retry_level:
 
         parsing_result = await Console(parsing_team.run_stream(task=task))
 
+        # Enhanced debugging section for statement_processor.py
+        # Add this after: parsing_result = await Console(parsing_team.run_stream(task=task))
+
+        print(f"\n=== COMPREHENSIVE PARSING DEBUG ===")
+        print(f"Total messages in parsing result: {len(parsing_result.messages)}")
+
+        # Show all message sources and types
+        message_summary = {}
+        for msg in parsing_result.messages:
+            source = getattr(msg, "source", "unknown")
+            message_summary[source] = message_summary.get(source, 0) + 1
+        print(f"Message breakdown by source: {message_summary}")
+
+        # Find and analyze JSON outputs
+        json_outputs = []
+        for i, msg in enumerate(parsing_result.messages):
+            source = getattr(msg, "source", "unknown")
+            content = getattr(msg, "content", "")
+            
+            print(f"\n--- Message {i} (source: {source}) ---")
+            print(f"Content length: {len(str(content))} characters")
+            print(f"First 300 chars: {str(content)[:300]}")
+            
+            if source == "executor":
+                # Look for code execution and outputs
+                if "```python" in content:
+                    print("  Contains Python code block")
+                if "Traceback" in content or "Error" in content:
+                    print("  Contains error/traceback")
+                
+                # Try to extract JSON
+                extracted = extract_json_from_text(content)
+                if extracted:
+                    print(f"  ✅ Found valid JSON")
+                    cardholders = extracted.get('transactions_by_cardholder', {})
+                    print(f"  📊 Cardholders: {list(cardholders.keys())}")
+                    
+                    for holder, txs in cardholders.items():
+                        tx_count = len(txs) if isinstance(txs, list) else 0
+                        print(f"    - {holder}: {tx_count} transactions")
+                        if tx_count > 0 and isinstance(txs, list):
+                            # Show sample transaction
+                            sample = txs[0] if txs else {}
+                            print(f"      Sample: {sample.get('sale_date', 'N/A')} {sample.get('description', 'N/A')[:30]}... ${sample.get('amount', 'N/A')}")
+                    
+                    summary = extracted.get('summary', {})
+                    print(f"  💰 Bank: {summary.get('bank_name', 'N/A')}")
+                    print(f"  💰 Total transactions: {summary.get('total_transactions', 'N/A')}")
+                    print(f"  💰 New balance: {summary.get('new_balance', 'N/A')}")
+                    
+                    json_outputs.append(extracted)
+                else:
+                    print(f"  ❌ No valid JSON found")
+                    # Show more content for debugging
+                    if source == "executor" and len(content) > 300:
+                        print(f"  Last 300 chars: ...{str(content)[-300:]}")
+
+        print(f"\n📊 Found {len(json_outputs)} valid JSON outputs from executor")
+
+        if json_outputs:
+            # Analyze the best JSON output (usually the last one)
+            best_json = json_outputs[-1]
+            print(f"\n=== BEST JSON ANALYSIS ===")
+            cardholders = best_json.get('transactions_by_cardholder', {})
+            total_transactions = sum(len(txs) for txs in cardholders.values() if isinstance(txs, list))
+            print(f"Total cardholders found: {len(cardholders)}")
+            print(f"Total transactions found: {total_transactions}")
+            
+            if total_transactions < 20:  # Expected 40+ transactions
+                print(f"⚠️  WARNING: Only found {total_transactions} transactions, expected 40+")
+                print("This suggests the parser is missing transaction sections")
+            
+            bank_name = best_json.get('summary', {}).get('bank_name', '')
+            if bank_name in ['MOHIT AGGARWAL', 'HIMANI SOOD']:
+                print(f"⚠️  WARNING: Bank name '{bank_name}' appears to be a person name, not a bank")
+
+        print(f"=== END COMPREHENSIVE DEBUG ===\n")
+
+
+
         # Extract JSON from parsing stage
         parsed_json = None
         for msg in parsing_result.messages:

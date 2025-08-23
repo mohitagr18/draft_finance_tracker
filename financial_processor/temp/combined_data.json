@@ -1,0 +1,248 @@
+{
+  "combined_transactions_by_cardholder": {
+    "HIMANI SOOD": [
+      {
+        "sale_date": "07/03",
+        "post_date": "07/03",
+        "description": "COSTCO GAS #0686         MONTCLAIR    CA",
+        "amount": 42.49,
+        "category": "Travel & Transportation"
+      },
+      {
+        "sale_date": "07/08",
+        "post_date": "07/08",
+        "description": "COSTCO WHSE #0627        FONTANA      CA",
+        "amount": 2.71,
+        "category": "Merchandise & Services"
+      },
+      {
+        "sale_date": "07/08",
+        "post_date": "07/08",
+        "description": "COSTCO WHSE #0627        FONTANA      CA",
+        "amount": 145.98,
+        "category": "Merchandise & Services"
+      },
+      {
+        "sale_date": "07/14",
+        "post_date": "07/14",
+        "description": "COSTCO GAS #0686         MONTCLAIR    CA",
+        "amount": 40.09,
+        "category": "Travel & Transportation"
+      },
+      {
+        "sale_date": "07/16",
+        "post_date": "07/16",
+        "description": "COSTCO WHSE #0627        FONTANA      CA",
+        "amount": 186.02,
+        "category": "Merchandise & Services"
+      },
+      {
+        "sale_date": "07/17",
+        "post_date": "07/17",
+        "description": "UBER   *EATS             HELP.UBER.COMCA",
+        "amount": 35.31,
+        "category": "Food & Dining"
+      },
+      {
+        "sale_date": "07/24",
+        "post_date": "07/24",
+        "description": "COSTCO GAS #0478         SAN BERNARDINCA",
+        "amount": 42.44,
+        "category": "Travel & Transportation"
+      }
+    ],
+    "MOHIT AGGARWAL": [
+      {
+        "sale_date": "07/05",
+        "post_date": "07/05",
+        "description": "HEADWAY                  HEADWAY.CO   NY",
+        "amount": 10.0,
+        "category": "Merchandise & Services"
+      },
+      {
+        "sale_date": "07/06",
+        "post_date": "07/06",
+        "description": "COSTCO WHSE #0678        RANCHO CUCAMOCA",
+        "amount": 312.41,
+        "category": "Merchandise & Services"
+      },
+      {
+        "sale_date": "07/12",
+        "post_date": "07/12",
+        "description": "TRADER JOE S #217        RANCHO CUCAMOCA",
+        "amount": 66.64,
+        "category": "Food & Dining"
+      },
+      {
+        "sale_date": "07/13",
+        "post_date": "07/13",
+        "description": "HEADWAY                  HEADWAY.CO   NY",
+        "amount": 10.0,
+        "category": "Merchandise & Services"
+      }
+    ]
+  },
+  "individual_statements": [
+    {
+      "filename": "statement1_parsed",
+      "data": {
+        "transactions_by_cardholder": {
+          "HIMANI SOOD": [
+            {
+              "sale_date": "07/03",
+              "post_date": "07/03",
+              "description": "COSTCO GAS #0686         MONTCLAIR    CA",
+              "amount": 42.49,
+              "category": "Travel & Transportation"
+            },
+            {
+              "sale_date": "07/08",
+              "post_date": "07/08",
+              "description": "COSTCO WHSE #0627        FONTANA      CA",
+              "amount": 2.71,
+              "category": "Merchandise & Services"
+            },
+            {
+              "sale_date": "07/08",
+              "post_date": "07/08",
+              "description": "COSTCO WHSE #0627        FONTANA      CA",
+              "amount": 145.98,
+              "category": "Merchandise & Services"
+            },
+            {
+              "sale_date": "07/14",
+              "post_date": "07/14",
+              "description": "COSTCO GAS #0686         MONTCLAIR    CA",
+              "amount": 40.09,
+              "category": "Travel & Transportation"
+            },
+            {
+              "sale_date": "07/16",
+              "post_date": "07/16",
+              "description": "COSTCO WHSE #0627        FONTANA      CA",
+              "amount": 186.02,
+              "category": "Merchandise & Services"
+            },
+            {
+              "sale_date": "07/17",
+              "post_date": "07/17",
+              "description": "UBER   *EATS             HELP.UBER.COMCA",
+              "amount": 35.31,
+              "category": "Food & Dining"
+            },
+            {
+              "sale_date": "07/24",
+              "post_date": "07/24",
+              "description": "COSTCO GAS #0478         SAN BERNARDINCA",
+              "amount": 42.44,
+              "category": "Travel & Transportation"
+            }
+          ],
+          "MOHIT AGGARWAL": [
+            {
+              "sale_date": "07/05",
+              "post_date": "07/05",
+              "description": "HEADWAY                  HEADWAY.CO   NY",
+              "amount": 10.0,
+              "category": "Merchandise & Services"
+            },
+            {
+              "sale_date": "07/06",
+              "post_date": "07/06",
+              "description": "COSTCO WHSE #0678        RANCHO CUCAMOCA",
+              "amount": 312.41,
+              "category": "Merchandise & Services"
+            },
+            {
+              "sale_date": "07/12",
+              "post_date": "07/12",
+              "description": "TRADER JOE S #217        RANCHO CUCAMOCA",
+              "amount": 66.64,
+              "category": "Food & Dining"
+            },
+            {
+              "sale_date": "07/13",
+              "post_date": "07/13",
+              "description": "HEADWAY                  HEADWAY.CO   NY",
+              "amount": 10.0,
+              "category": "Merchandise & Services"
+            }
+          ]
+        },
+        "summary": {
+          "previous_balance": 1041.44,
+          "new_balance": 910.51,
+          "purchases": 451.75,
+          "available_credit_limit": 6089.0,
+          "bank_name": "Citi",
+          "total_transactions": 11,
+          "total_amount": 894.09
+        }
+      }
+    }
+  ],
+  "combined_summary": {
+    "total_files_processed": 1,
+    "total_transactions": 11,
+    "total_amount": 894.09,
+    "total_purchases": 451.75,
+    "total_payments": 0.0
+  },
+  "summary_by_bank": {
+    "Citi": {
+      "total_statements": 1,
+      "total_transactions": 11,
+      "total_amount": 894.09,
+      "total_purchases": 451.75,
+      "total_payments": 0.0,
+      "cardholders": [
+        "HIMANI SOOD",
+        "MOHIT AGGARWAL"
+      ]
+    }
+  },
+  "summary_by_cardholder": {
+    "HIMANI SOOD": {
+      "total_transactions": 7,
+      "total_amount": 495.04,
+      "total_purchases": 495.04,
+      "total_payments": 0.0,
+      "banks": {
+        "Citi": {
+          "total_transactions": 7,
+          "total_amount": 495.04,
+          "total_purchases": 495.04,
+          "total_payments": 0.0
+        }
+      },
+      "category_totals": {
+        "Travel & Transportation": 125.02000000000001,
+        "Merchandise & Services": 334.71000000000004,
+        "Food & Dining": 35.31
+      }
+    },
+    "MOHIT AGGARWAL": {
+      "total_transactions": 4,
+      "total_amount": 399.05,
+      "total_purchases": 399.05,
+      "total_payments": 0.0,
+      "banks": {
+        "Citi": {
+          "total_transactions": 4,
+          "total_amount": 399.05,
+          "total_purchases": 399.05,
+          "total_payments": 0.0
+        }
+      },
+      "category_totals": {
+        "Merchandise & Services": 332.41,
+        "Food & Dining": 66.64
+      }
+    }
+  },
+  "category_totals": {
+    "Travel & Transportation": 125.02000000000001,
+    "Merchandise & Services": 667.1200000000001,
+    "Food & Dining": 101.95
+  }
+}
