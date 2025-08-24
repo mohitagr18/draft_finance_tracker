@@ -20,13 +20,32 @@ from agents.prompts.data_analyzer_message import DATA_ANALYZER_SYSTEM_MESSAGE
 async def run_data_analyzer(json_file_path: str, user_question: str):
     """Run the data analyzer with the given JSON file and user question."""
     
-    # Validate input file exists
-    if not Path(json_file_path).exists():
-        raise FileNotFoundError(f"JSON file not found: {json_file_path}")
-    
+    # # Validate input file exists
+    # if not Path(json_file_path).exists():
+    #     raise FileNotFoundError(f"JSON file not found: {json_file_path}")
+    # Copy the JSON file to ensure it's accessible in the Docker container
+    try:
+        # Ensure the data file is in the temp directory where Docker can see it
+        source_path = Path(json_file_path)
+        dest_path = Path(TEMP_DIR) / 'combined_data.json'
+        
+        if source_path != dest_path:
+            shutil.copy2(source_path, dest_path)
+            print(f"✅ Copied data file to Docker working directory: {dest_path}")
+        
+        # Also validate the file
+        with open(dest_path, 'r') as f:
+            test_data = json.load(f)
+            tx_count = sum(len(txs) for txs in test_data.get('combined_transactions_by_cardholder', {}).values())
+            print(f"✅ Validated data: {tx_count} transactions found")
+    except Exception as e:
+        print(f"⚠️ Failed to copy/validate data file: {e}")
+        return
+
+
     # Load the data to validate it
     try:
-        data = load_combined_data(json_file_path)
+        data = load_combined_data(dest_path)
         print(f"✅ Data file validated: {len(data)} top-level keys found")
     except Exception as e:
         print(f"⚠ Error loading data: {e}")
@@ -96,18 +115,21 @@ async def run_data_analyzer(json_file_path: str, user_question: str):
     # except Exception as e:
     #     print(f"⚠ Failed to copy data file: {e}")
     #     return
-    
+
     # Prepare the initial task message
     initial_message = f"""
-I have a combined financial data JSON file at: ./combined_data.json
-User Question: {user_question}
+    I have a combined financial data JSON file at: {TEMP_DIR}/combined_data.json
+    The file contains {tx_count} transactions across multiple cardholders.
 
-Please analyze this financial data and provide insights based on the question asked.
+    User Question: {user_question}
 
-IMPORTANT: Your Python script must include extensive print statements to show progress and results.
-Start every script with: print("📊 Starting data analysis...")
-End every script with: print("✅ Analysis complete!")
-"""
+    Please analyze this financial data and provide insights based on the question asked.
+
+    IMPORTANT: 
+    - Start by verifying you can load the data file and print the number of transactions found
+    - Your Python script must include extensive print statements to show progress and results
+    - Always validate the data structure before proceeding with analysis
+    """
     
     task = TextMessage(
         content=initial_message,

@@ -117,86 +117,102 @@ VALIDATION REQUIREMENTS:
 - Ensure all major cardholders are captured
 - Bank name should be actual bank, not person name
 
-ROBUST CODE STRUCTURE:
+# Replace the ROBUST CODE STRUCTURE section with:
+
+COMPLETE CODE TEMPLATE:
 ```python
 import json
 import re
-from typing import Dict, List
+
+# Read the statement file
+with open('statement.txt', 'r', encoding='utf-8') as f:
+    statement_text = f.read()
 
 def convert_date_to_mmdd(date_str):
     "Convert various date formats to MM/DD"
-    import re
+    if not date_str:
+        return ""
+    
+    date_str = str(date_str).strip()
     
     # Already MM/DD format
-    if re.match(r'^\d{1,2}/\d{1,2}$', date_str.strip()):
-        return date_str.strip()
+    if re.match(r'^\d{1,2}/\d{1,2}$', date_str):
+        parts = date_str.split('/')
+        return f"{int(parts[0]):02d}/{int(parts[1]):02d}"
     
     # MM/DD/YY or MM/DD/YYYY format - remove year
-    match = re.match(r'^(\d{1,2}/\d{1,2})/\d{2,4}$', date_str.strip())
+    match = re.match(r'^(\d{1,2})/(\d{1,2})/\d{2,4}$', date_str)
     if match:
-        return match.group(1)
+        return f"{int(match.group(1)):02d}/{int(match.group(2)):02d}"
     
-    # MMM DD format (like "Jul 14")
+    # MMM DD format
     month_map = {
         'Jan': '01', 'Feb': '02', 'Mar': '03', 'Apr': '04',
         'May': '05', 'Jun': '06', 'Jul': '07', 'Aug': '08', 
         'Sep': '09', 'Oct': '10', 'Nov': '11', 'Dec': '12'
     }
     
-    match = re.match(r'^([A-Za-z]{3})\s+(\d{1,2})$', date_str.strip())
-    if match:
-        month_abbr, day = match.groups()
-        if month_abbr in month_map:
-            return f"{month_map[month_abbr]}/{int(day):02d}"
+    parts = date_str.split()
+    if len(parts) >= 2 and parts[0] in month_map:
+        return f"{month_map[parts[0]]}/{int(parts[1]):02d}"
     
-    return date_str.strip()  # Return as-is if no conversion possible
+    return date_str
 
-def parse_bank_statement(text: str) -> dict:
-    # 1. Identify bank name
-    bank_name = extract_bank_name(text)
+def parse_transactions(text, cardholder_name):
+    "Extract all transactions for a specific cardholder"
+    transactions = []
     
-    # 2. Find all cardholder sections with multiple pattern matching
-    cardholders = find_all_cardholders(text)
+    # Multiple transaction patterns to try
+    patterns = [
+        # MM/DD MM/DD Description Amount
+        r'(\d{1,2}/\d{1,2})\s+(\d{1,2}/\d{1,2})\s+([^$]+?)\s+\$?([\d,]+\.\d{2})',
+        # MMM DD MMM DD Description Amount  
+        r'([A-Z][a-z]{2}\s+\d{1,2})\s+([A-Z][a-z]{2}\s+\d{1,2})\s+([^$]+?)\s+\$?([\d,]+\.\d{2})',
+        # Single date patterns as fallback
+        r'(\d{1,2}/\d{1,2})\s+([^$]+?)\s+\$?([\d,]+\.\d{2})'
+    ]
     
-    # 3. For each cardholder, extract ALL their transactions
-    transactions_by_cardholder = {}
-    for holder in cardholders:
-        transactions = extract_all_transactions_for_cardholder(text, holder)
-        if transactions:  # Only add if transactions found
-            # CRITICAL: Ensure all transactions have proper date format
-            for tx in transactions:
-                if 'date' in tx and ('sale_date' not in tx or 'post_date' not in tx):
-                    # Handle single date field by converting and duplicating
-                    converted_date = convert_date_to_mmdd(str(tx['date']))
-                    tx['sale_date'] = converted_date
-                    tx['post_date'] = converted_date
-                    if 'date' in tx:
-                        del tx['date']  # Remove the original date field
-                elif 'sale_date' in tx and 'post_date' in tx:
-                    # Convert existing dates to proper format
-                    tx['sale_date'] = convert_date_to_mmdd(str(tx['sale_date']))
-                    tx['post_date'] = convert_date_to_mmdd(str(tx['post_date']))
+    for pattern in patterns:
+        for match in re.finditer(pattern, text):
+            if len(match.groups()) == 4:  # Two dates
+                sale_date = convert_date_to_mmdd(match.group(1))
+                post_date = convert_date_to_mmdd(match.group(2))
+                description = match.group(3).strip()
+                amount = float(match.group(4).replace(',', ''))
+            elif len(match.groups()) == 3:  # Single date
+                date = convert_date_to_mmdd(match.group(1))
+                sale_date = date
+                post_date = date
+                description = match.group(2).strip()
+                amount = float(match.group(3).replace(',', ''))
+            else:
+                continue
             
-            transactions_by_cardholder[holder] = transactions
+            # Skip headers and invalid entries
+            if not description or len(description) < 2:
+                continue
+            if any(word in description.lower() for word in ['summary', 'total', 'balance', 'payment due']):
+                continue
+            
+            transactions.append({
+                'sale_date': sale_date,
+                'post_date': post_date,
+                'description': description,
+                'amount': amount
+            })
     
-    # 4. Extract summary with multiple format support
-    summary = extract_summary_data(text, bank_name)
-    
-    # 5. Add calculated totals
-    total_transactions = sum(len(txs) for txs in transactions_by_cardholder.values())
-    total_amount = sum(sum(tx['amount'] for tx in txs) for txs in transactions_by_cardholder.values())
-    
-    summary.update({
-        'total_transactions': total_transactions,
-        'total_amount': round(total_amount, 2)
-    })
-    
-    return {
-        'transactions_by_cardholder': transactions_by_cardholder,
-        'summary': summary
-    }
+    return transactions
 
-# Implement helper functions with regex patterns for different formats
+# Find all cardholders and their transactions
+# [Implement cardholder detection and transaction extraction logic here]
+
+# Build the result
+result = {
+    'transactions_by_cardholder': transactions_by_cardholder,
+    'summary': summary
+}
+
+print(json.dumps(result, indent=2, ensure_ascii=False))
 ```
 
 KEY IMPROVEMENTS NEEDED:
@@ -206,6 +222,12 @@ KEY IMPROVEMENTS NEEDED:
 4. Use proper bank identification logic
 5. Implement robust transaction extraction for different statement layouts
 6. Add validation to ensure realistic transaction counts per cardholder
+
+CRITICAL DATE HANDLING:
+- ALWAYS ensure BOTH sale_date and post_date exist for every transaction
+- If you only find one date in the source, use it for BOTH fields
+- Convert all dates to MM/DD format using the convert_date_to_mmdd function
+- Never leave a transaction with only one date field
 
 Print ONLY the JSON result via `print(json.dumps(result, ensure_ascii=False, indent=2))`
 """

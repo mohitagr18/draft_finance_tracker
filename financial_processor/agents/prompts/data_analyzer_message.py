@@ -133,15 +133,49 @@ def embed_image(image_path, report_content):
 def find_data_file():
     print("🔍 Searching for data file...")
     sys.stdout.flush()
-    # [Rest of the find_data_file function as provided in the original prompt]
-    possible_paths = ['./combined_data.json', 'combined_data.json', 'output/combined_data.json', '/workspace/combined_data.json']
+    
+    # Check current working directory first
+    cwd_files = glob.glob("*.json")
+    print(f"JSON files in current directory: {cwd_files}")
+    sys.stdout.flush()
+    
+    # Expanded search paths
+    possible_paths = [
+        './combined_data.json',
+        'combined_data.json', 
+        'temp/combined_data.json',  # Add this!
+        '../temp/combined_data.json',  # Add this!
+        'output/combined_data.json',
+        '/workspace/combined_data.json',
+        '/tmp/combined_data.json'
+    ]
+    
     for path in possible_paths:
         if os.path.exists(path):
             print(f"✅ Found data file: {path}")
+            # Validate it has expected structure
+            try:
+                with open(path, 'r') as f:
+                    test_data = json.load(f)
+                    if 'combined_transactions_by_cardholder' in test_data:
+                        print(f"✅ Validated data structure")
+                        sys.stdout.flush()
+                        return path
+                    else:
+                        print(f"⚠️ File {path} doesn't have expected structure")
+            except:
+                print(f"⚠️ Could not validate {path}")
             sys.stdout.flush()
-            return path
-    print("❌ No data file found in common locations. Please ensure 'combined_data.json' is available.")
-    sys.stdout.flush()
+    
+    print("❌ No valid data file found. Searching recursively...")
+    # Last resort: recursive search
+    for root, dirs, files in os.walk('.'):
+        for file in files:
+            if file == 'combined_data.json':
+                full_path = os.path.join(root, file)
+                print(f"Found candidate: {full_path}")
+                return full_path
+    
     return None
 
 try:
@@ -162,6 +196,18 @@ try:
     with open(data_file_path, 'r') as f:
         data = json.load(f)
     print("✅ Data loaded successfully.")
+    print(f"📊 Data structure keys: {list(data.keys())}")
+
+    # Validate and print transaction counts
+    if 'combined_transactions_by_cardholder' in data:
+        tx_by_holder = data['combined_transactions_by_cardholder']
+        total_tx = sum(len(txs) for txs in tx_by_holder.values())
+        print(f"📊 Found {len(tx_by_holder)} cardholders with {total_tx} total transactions")
+        for holder, txs in tx_by_holder.items():
+            print(f"  - {holder}: {len(txs)} transactions")
+    else:
+        print("⚠️ WARNING: No transaction data found in expected format!")
+        
     sys.stdout.flush()
 
 # ----------------- BOILERPLATE END -----------------

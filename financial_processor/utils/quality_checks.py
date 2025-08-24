@@ -90,24 +90,20 @@ def quality_gate(raw_text: str, parsed: dict, retry_level: int = 0) -> tuple[boo
         # More flexible name matching
         holder_match = False
         if require_known_holder and allowed_names:
-            # Exact match
-            if holder in allowed_names:
-                holder_match = True
-            # Partial match (handle case differences, extra spaces)
-            else:
-                for allowed in allowed_names:
-                    if allowed.replace(' ', '').lower() in holder.replace(' ', '').lower():
-                        holder_match = True
-                        print(f"   ✅ Matched '{holder}' to allowed name '{allowed}'")
-                        break
-                    if holder.replace(' ', '').lower() in allowed.replace(' ', '').lower():
-                        holder_match = True
-                        print(f"   ✅ Matched '{holder}' to allowed name '{allowed}'")
-                        break
+            # Normalize for comparison
+            holder_normalized = holder.upper().strip()
             
-            if not holder_match:
-                print(f"   ❌ Skipped: '{holder}' not in allowed names {allowed_names}")
-                continue
+            for allowed in allowed_names:
+                allowed_normalized = allowed.upper().strip()
+                # Exact match
+                if holder_normalized == allowed_normalized:
+                    holder_match = True
+                    break
+                # Check if one contains the other (for partial matches)
+                if holder_normalized in allowed_normalized or allowed_normalized in holder_normalized:
+                    holder_match = True
+                    print(f"   ✅ Matched '{holder}' to allowed name '{allowed}'")
+                    break
         else:
             holder_match = True  # No restriction
             

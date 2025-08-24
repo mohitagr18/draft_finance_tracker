@@ -2,38 +2,18 @@ TASK_MESSAGE = """
 Parse the comprehensive bank statement file 'statement.txt' containing multiple statement formats and extract ALL transaction data accurately.
 
 CONTEXT:
-The file contains credit card statements from different banks (Citi, Capital One, etc.) with:
-- Multiple cardholders per statement (e.g., MOHIT AGGARWAL, HIMANI SOOD)
-- Different transaction section formats
-- Varying date formats (MM/DD, MMM DD, MM/DD/YY)
-- Multiple summary layouts
+The statement text will be provided after these instructions. Your code should:
+1. Assign the provided text to a variable called 'statement_text'
+2. Parse ALL cardholders (e.g., MOHIT AGGARWAL, HIMANI SOOD)
+3. Extract ALL transactions with both sale_date and post_date in MM/DD format
+4. Handle multiple statement formats (Citi, Capital One, etc.)
+5. Output complete JSON with all transactions organized by cardholder
 
-CRITICAL REQUIREMENTS:
-1. Extract ALL cardholders - not just the first one found
-2. Parse ALL transactions for each cardholder across all statement formats
-3. Handle different section headers:
-   - "Standard Purchases" (Citi format)
-   - "CARDHOLDER_NAME #XXXX: Transactions" (Capital One format)
-   - "CARDHOLDER_NAME #XXXX: Payments, Credits and Adjustments"
-4. Identify correct bank names from statement headers, not cardholder names
-5. Parse different date formats consistently
-
-EXPECTED OUTPUT SCALE:
-Based on the provided statements, you should extract:
-- 2+ cardholders (MOHIT AGGARWAL, HIMANI SOOD, etc.)
-- 40+ total transactions across all cardholders
-- Accurate bank identification
-- Complete summary data from account summary sections
-
-VALIDATION CHECKS:
-- Each major cardholder should have multiple transactions (10-20+ each)
-- Transaction totals should align with statement summaries when possible
-- Bank name should be actual financial institution, not person name
-- All date formats should be parsed consistently
-
-Write complete Python code with robust parsing logic that handles the complexity and variation in bank statement formats. Focus on comprehensive extraction rather than just parsing the first few transactions found.
-
-Install any required packages and implement thorough parsing that captures the full scope of financial data present.
+CRITICAL: 
+- Each transaction MUST have both 'sale_date' and 'post_date' fields
+- If only one date is found, use it for BOTH fields
+- All dates must be in MM/DD format (e.g., "07/14", "12/25")
+- Parse ALL sections, not just the first few transactions
 """
 
 
