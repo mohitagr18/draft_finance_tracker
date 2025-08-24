@@ -1,4 +1,4 @@
-"""Single statement processing utilities."""
+"""Enhanced single statement processing with improved agent interaction."""
 
 import json
 import os
@@ -15,7 +15,7 @@ from autogen_agentchat.ui import Console
 from config.models import get_anthropic_client, get_openai_client
 from utils.file_utils import load_statement
 from utils.json_utils import extract_json_from_text
-from utils.quality_checks import *
+from utils.quality_checks import quality_gate
 from utils.termination_conditions import JSONSuccessTermination, CategorizationSuccessTermination
 from agents.prompts.statement_parser_message import STATEMENT_PARSER_SYSTEM_MESSAGE
 from agents.prompts.categorizer_message import CATEGORIZER_SYSTEM_MESSAGE
@@ -25,44 +25,183 @@ from config.constants import TEMP_DIR
 
 async def process_single_statement(file_path: str, output_dir: str, retry_level: int = 0) -> Tuple[bool, str, dict]:
     """
-    Process a single statement file.
-    Returns: (success: bool, error_message: str, parsed_data: dict)
+    Enhanced statement processing with better agent interaction.
     """
     try:
         statement_text = load_statement(file_path)
-        work_dir = "temp" # same as DockerCommandLineCodeExecutor(work_dir="temp")
+        work_dir = TEMP_DIR
         os.makedirs(work_dir, exist_ok=True)
+        
+        # Write statement to file
         input_fp = Path(work_dir) / "statement.txt"
         with open(input_fp, "w", encoding="utf-8") as f:
             f.write(statement_text)
 
-        # Create the model client
-        # model_client = get_anthropic_client()
         model_client = get_openai_client()
 
-        # Assistant agent: writes code to parse the statement
+        # Enhanced assistant with more detailed feedback instructions
+        enhanced_system_message = STATEMENT_PARSER_SYSTEM_MESSAGE + """
+
+CRITICAL: You MUST analyze executor feedback and improve your code iteratively.
+
+EXECUTOR FEEDBACK ANALYSIS:
+- If executor shows empty/few transactions: Your parsing patterns are wrong
+- If executor shows wrong cardholders: Your name extraction logic failed  
+- If executor shows "No valid transactions": Your date/amount parsing is incorrect
+- If executor shows errors: Fix the syntax and retry
+
+DEBUGGING STRATEGY:
+1. First attempt: Write code with extensive debug prints to understand the data structure
+2. Based on executor output: Identify what's wrong and fix specific issues
+3. Continue iterating until you get good results
+
+SAMPLE DEBUG CODE STRUCTURE:
+```python
+# Read and examine the raw text first
+with open('statement.txt', 'r', encoding='utf-8') as f:
+    text = f.read()
+
+print("=== RAW TEXT SAMPLE ===")
+print(text[:2000])  # Show first 2000 chars
+print("=== END SAMPLE ===")
+
+# Look for cardholder patterns
+import re
+print("\\n=== CARDHOLDER SEARCH ===")
+# Try multiple patterns and print what you find
+patterns = [
+    r'([A-Z]+\\s+[A-Z]+)\\s*\\n.*?(?:Card ending|Account ending)',
+    r'([A-Z]+\\s+[A-Z]+)\\s*#\\d+:\\s*Transactions',
+    r'CARDHOLDER SUMMARY.*?\\n\\s*([A-Z]+\\s+[A-Z]+)'
+]
+
+for i, pattern in enumerate(patterns):
+    matches = re.findall(pattern, text, re.IGNORECASE | re.DOTALL)
+    print(f"Pattern {i}: {matches}")
+
+# Look for transaction patterns  
+print("\\n=== TRANSACTION SEARCH ===")
+tx_patterns = [
+    r'\\d{1,2}/\\d{1,2}\\s+\\d{1,2}/\\d{1,2}\\s+.*?\\$[\\d,]+\\.\\d{2}',
+    r'[A-Z][a-z]{2}\\s+\\d{1,2}\\s+[A-Z][a-z]{2}\\s+\\d{1,2}\\s+.*?\\$[\\d,]+\\.\\d{2}',
+    r'[A-Z][a-z]{2}\\s+\\d{1,2}\\s+.*?\\$[\\d,]+\\.\\d{2}'
+]
+
+for i, pattern in enumerate(tx_patterns):
+    matches = re.findall(pattern, text)
+    print(f"TX Pattern {i}: Found {len(matches)} matches")
+    if matches:
+        print(f"  Sample: {matches[0]}")
+
+# Then implement actual parsing based on what you discovered
+```
+
+ALWAYS respond to executor feedback with improved code. Don't repeat the same approach if it failed.
+"""
+
         assistant = AssistantAgent(
             name="assistant",
             model_client=model_client,
-            system_message=STATEMENT_PARSER_SYSTEM_MESSAGE,
+            system_message=enhanced_system_message,
             reflect_on_tool_use=True
         )
 
-        # Code executor
+        # Code executor setup
         code_executor = DockerCommandLineCodeExecutor(
             work_dir=TEMP_DIR,
-            image="amancevice/pandas",  
-            # image="demisto/pandas"
-            )
+            image="amancevice/pandas"
+        )
         await code_executor.start()
 
-        # Code execution agent
         executor_agent = CodeExecutorAgent(
             name="executor",
             code_executor=code_executor
         )
 
-        # --- Categorizer Agent ---
+        # Enhanced task message with more specific instructions
+        enhanced_task = TextMessage(
+            content=f"""
+You need to parse the bank statement in 'statement.txt'. 
+
+IMPORTANT CONTEXT:
+- This is retry level {retry_level} (0=strict, 1=normal, 2=relaxed quality requirements)
+- The statement may be from Citi, Capital One, or other banks
+- Different banks have different transaction formats
+
+STEP-BY-STEP APPROACH:
+1. First, write exploratory code to understand the text structure
+2. Identify cardholder patterns and transaction formats
+3. Write parsing code based on what you discovered
+4. If I give you feedback about failures, analyze and improve your approach
+
+Start by examining the raw text structure and identifying patterns.
+""",
+            source="user"
+        )
+
+        # Use standard termination with more messages allowed
+        json_termination = JSONSuccessTermination()
+        max_termination = MaxMessageTermination(max_messages=12)  # Allow more messages
+        
+        parsing_team = RoundRobinGroupChat(
+            participants=[assistant, executor_agent],
+            termination_condition=json_termination | max_termination
+        )
+
+        print(f"\n🚀 Starting parsing conversation (retry_level={retry_level})")
+        parsing_result = await Console(parsing_team.run_stream(task=enhanced_task))
+
+        # Enhanced debugging
+        print(f"\n=== CONVERSATION ANALYSIS ===")
+        print(f"Total messages: {len(parsing_result.messages)}")
+        
+        assistant_messages = [m for m in parsing_result.messages if getattr(m, "source", "") == "assistant"]
+        executor_messages = [m for m in parsing_result.messages if getattr(m, "source", "") == "executor"]
+        
+        print(f"Assistant messages: {len(assistant_messages)}")
+        print(f"Executor messages: {len(executor_messages)}")
+        
+        # Check for iterative improvement
+        if len(assistant_messages) > 1:
+            print("✅ Multiple assistant messages found - iteration occurred")
+        else:
+            print("⚠️ Only one assistant message - no iteration detected")
+
+        # Extract best JSON result
+        best_json = None
+        best_quality_score = -1
+        
+        for msg in parsing_result.messages:
+            if getattr(msg, "source", "") == "executor":
+                content = getattr(msg, "content", "")
+                parsed_json = extract_json_from_text(content)
+                
+                if parsed_json:
+                    # Score based on transaction count and cardholder count
+                    tx_map = parsed_json.get("transactions_by_cardholder", {})
+                    total_tx = sum(len(txs) for txs in tx_map.values() if isinstance(txs, list))
+                    cardholder_count = len(tx_map)
+                    
+                    quality_score = total_tx + (cardholder_count * 10)  # Favor more cardholders
+                    
+                    print(f"📊 Found JSON with {cardholder_count} cardholders, {total_tx} transactions (score: {quality_score})")
+                    
+                    if quality_score > best_quality_score:
+                        best_quality_score = quality_score
+                        best_json = parsed_json
+
+        if not best_json:
+            await code_executor.stop()
+            return False, "No valid JSON found after enhanced conversation", {}
+
+        # Apply quality gate to the best result
+        ok, msg_text, cleaned_json = quality_gate(statement_text, best_json, retry_level=retry_level)
+        
+        if not ok:
+            await code_executor.stop()
+            return False, f"Quality gate failed: {msg_text}", {}
+
+        # Stage 2: Categorization (unchanged)
         categorizer_agent = AssistantAgent(
             name="categorizer",
             model_client=model_client,
@@ -70,138 +209,8 @@ async def process_single_statement(file_path: str, output_dir: str, retry_level:
             reflect_on_tool_use=False
         )
 
-        # STAGE 1: Assistant + Executor to parse the statement
-        json_termination = JSONSuccessTermination()
-        max_message_termination = MaxMessageTermination(max_messages=20)
-        parsing_team = RoundRobinGroupChat(
-            participants=[assistant, executor_agent],
-            termination_condition = json_termination | max_message_termination
-        )
-
-        # Send the statement as initial task
-
-        task = TextMessage(
-            content=TASK_MESSAGE,
-            source="user"
-        )
-        # task = TextMessage(
-        #     content=f"statement_text = '''{statement_text}'''",
-        #     source="user"
-        # )
-
-        # task = TextMessage(content=f"""
-        #                    You need to write complete Python code that:
-        #                     1. Defines the statement_text variable with the bank statement content
-        #                     2. Parses the statement text to extract transactions
-        #                     3. Returns the data as JSON
-
-        #                     Here is the bank statement content to parse:
-
-        #                     {statement_text}
-
-        #                     Write complete Python code that assigns this content to statement_text and processes it.
-        #                     """,
-        #                     source="user"
-        #                     )
-
-        parsing_result = await Console(parsing_team.run_stream(task=task))
-
-        # Enhanced debugging section for statement_processor.py
-        # Add this after: parsing_result = await Console(parsing_team.run_stream(task=task))
-
-        print(f"\n=== COMPREHENSIVE PARSING DEBUG ===")
-        print(f"Total messages in parsing result: {len(parsing_result.messages)}")
-
-        # Show all message sources and types
-        message_summary = {}
-        for msg in parsing_result.messages:
-            source = getattr(msg, "source", "unknown")
-            message_summary[source] = message_summary.get(source, 0) + 1
-        print(f"Message breakdown by source: {message_summary}")
-
-        # Find and analyze JSON outputs
-        json_outputs = []
-        for i, msg in enumerate(parsing_result.messages):
-            source = getattr(msg, "source", "unknown")
-            content = getattr(msg, "content", "")
-            
-            print(f"\n--- Message {i} (source: {source}) ---")
-            print(f"Content length: {len(str(content))} characters")
-            print(f"First 300 chars: {str(content)[:300]}")
-            
-            if source == "executor":
-                # Look for code execution and outputs
-                if "```python" in content:
-                    print("  Contains Python code block")
-                if "Traceback" in content or "Error" in content:
-                    print("  Contains error/traceback")
-                
-                # Try to extract JSON
-                extracted = extract_json_from_text(content)
-                if extracted:
-                    print(f"  ✅ Found valid JSON")
-                    cardholders = extracted.get('transactions_by_cardholder', {})
-                    print(f"  📊 Cardholders: {list(cardholders.keys())}")
-                    
-                    for holder, txs in cardholders.items():
-                        tx_count = len(txs) if isinstance(txs, list) else 0
-                        print(f"    - {holder}: {tx_count} transactions")
-                        if tx_count > 0 and isinstance(txs, list):
-                            # Show sample transaction
-                            sample = txs[0] if txs else {}
-                            print(f"      Sample: {sample.get('sale_date', 'N/A')} {sample.get('description', 'N/A')[:30]}... ${sample.get('amount', 'N/A')}")
-                    
-                    summary = extracted.get('summary', {})
-                    print(f"  💰 Bank: {summary.get('bank_name', 'N/A')}")
-                    print(f"  💰 Total transactions: {summary.get('total_transactions', 'N/A')}")
-                    print(f"  💰 New balance: {summary.get('new_balance', 'N/A')}")
-                    
-                    json_outputs.append(extracted)
-                else:
-                    print(f"  ❌ No valid JSON found")
-                    # Show more content for debugging
-                    if source == "executor" and len(content) > 300:
-                        print(f"  Last 300 chars: ...{str(content)[-300:]}")
-
-        print(f"\n📊 Found {len(json_outputs)} valid JSON outputs from executor")
-
-        if json_outputs:
-            # Analyze the best JSON output (usually the last one)
-            best_json = json_outputs[-1]
-            print(f"\n=== BEST JSON ANALYSIS ===")
-            cardholders = best_json.get('transactions_by_cardholder', {})
-            total_transactions = sum(len(txs) for txs in cardholders.values() if isinstance(txs, list))
-            print(f"Total cardholders found: {len(cardholders)}")
-            print(f"Total transactions found: {total_transactions}")
-            
-            if total_transactions < 20:  # Expected 40+ transactions
-                print(f"⚠️  WARNING: Only found {total_transactions} transactions, expected 40+")
-                print("This suggests the parser is missing transaction sections")
-            
-            bank_name = best_json.get('summary', {}).get('bank_name', '')
-            if bank_name in ['MOHIT AGGARWAL', 'HIMANI SOOD']:
-                print(f"⚠️  WARNING: Bank name '{bank_name}' appears to be a person name, not a bank")
-
-        print(f"=== END COMPREHENSIVE DEBUG ===\n")
-
-
-
-        # Extract JSON from parsing stage
-        parsed_json = None
-        for msg in parsing_result.messages:
-            if getattr(msg, "source", "") == "executor":
-                content = getattr(msg, "content", "")
-                parsed_json = extract_json_from_text(content)
-                if parsed_json:
-                    break
-
-        if not parsed_json:
-            await code_executor.stop()
-            return False, "Failed to parse statement in Stage 1", {}
-
-        # STAGE 2: Categorizer processes the parsed JSON
         categorizer_task = TextMessage(
-            content=f"Here is the parsed JSON to categorize:\n```json\n{json.dumps(parsed_json, indent=2)}\n```",
+            content=f"Here is the parsed JSON to categorize:\n```json\n{json.dumps(cleaned_json, indent=2)}\n```",
             source="user"
         )
 
@@ -215,62 +224,26 @@ async def process_single_statement(file_path: str, output_dir: str, retry_level:
 
         categorization_result = await Console(categorizer_team.run_stream(task=categorizer_task))
 
-        # Stop executor safely
+        # Extract final categorized result
+        final_json = cleaned_json  # Default fallback
+        
+        for msg in categorization_result.messages:
+            if getattr(msg, "source", "") == "categorizer":
+                content = getattr(msg, "content", "")
+                categorized = extract_json_from_text(content)
+                if categorized:
+                    final_json = categorized
+                    break
+
         await code_executor.stop()
 
-        # Search categorization result for final JSON
-        final_parsed_json = None
-
-        # Check categorizer messages first
-        for msg in categorization_result.messages:
-            src = getattr(msg, "source", "")
-            content = getattr(msg, "content", None)
-            try:
-                content_str = content if isinstance(content, str) else str(content)
-            except Exception:
-                content_str = None
-
-            if not content_str:
-                continue
-
-            if src == "categorizer":
-                final_parsed_json = extract_json_from_text(content_str)
-                if final_parsed_json is not None:
-                    break
-
-        # Fallback: check all messages
-        if final_parsed_json is None:
-            for msg in categorization_result.messages:
-                content = getattr(msg, "content", None)
-                try:
-                    content_str = content if isinstance(content, str) else str(content)
-                except Exception:
-                    content_str = None
-                if not content_str:
-                    continue
-                final_parsed_json = extract_json_from_text(content_str)
-                if final_parsed_json is not None:
-                    break
-
-        # Use stage 1 result as fallback
-        if final_parsed_json is None:
-            final_parsed_json = parsed_json
-
-        # Apply the quality gate to validate and clean the result
-        # Apply quality gate with the current retry_level
-        ok, msg, cleaned_json = quality_gate(statement_text, final_parsed_json, retry_level=retry_level)
-        if not ok:
-            await code_executor.stop()
-            return False, f"Low-quality parse: {msg}", {}
-        final_parsed_json = cleaned_json
-
-        # Save individual file result
+        # Save result
         filename = Path(file_path).stem
         individual_output_path = Path(output_dir) / f"{filename}_parsed.json"
         with open(individual_output_path, "w", encoding="utf-8") as f:
-            json.dump(final_parsed_json, f, indent=2, ensure_ascii=False)
+            json.dump(final_json, f, indent=2, ensure_ascii=False)
 
-        return True, "", final_parsed_json
+        return True, "", final_json
 
     except Exception as e:
         return False, str(e), {}
