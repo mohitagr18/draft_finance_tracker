@@ -23,6 +23,7 @@ async def run_data_analyzer(json_file_path: str, user_question: str):
     # # Validate input file exists
     # if not Path(json_file_path).exists():
     #     raise FileNotFoundError(f"JSON file not found: {json_file_path}")
+
     # Copy the JSON file to ensure it's accessible in the Docker container
     try:
         # Ensure the data file is in the temp directory where Docker can see it
@@ -41,7 +42,6 @@ async def run_data_analyzer(json_file_path: str, user_question: str):
     except Exception as e:
         print(f"⚠️ Failed to copy/validate data file: {e}")
         return
-
 
     # Load the data to validate it
     try:

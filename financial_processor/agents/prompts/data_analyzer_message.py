@@ -27,6 +27,32 @@ You will be working with financial data from a `combined_data.json` file. Your c
 }
 ```
 
+IMPORTANT: The date fields in transactions may be in MM/DD format (e.g., "07/05") rather than full dates. 
+Your code must handle this by:
+1. Parsing dates flexibly (try multiple formats)
+2. Assuming current year if year is missing
+3. Using pandas.to_datetime with errors='coerce' to handle invalid dates
+
+Example date parsing:
+```python
+def parse_transaction_date(date_str):
+    if not date_str:
+        return None
+    
+    # Try different formats
+    for fmt in ['%m/%d', '%Y-%m-%d', '%m/%d/%Y']:
+        try:
+            if fmt == '%m/%d':
+                # Assume current year for MM/DD format
+                current_year = datetime.now().year
+                return pd.to_datetime(f"{current_year}/{date_str}", format='%Y/%m/%d')
+            else:
+                return pd.to_datetime(date_str, format=fmt)
+        except:
+            continue
+    
+    # Last resort - let pandas try
+    return pd.to_datetime(date_str, errors='coerce')
 -----
 
 ## 🔁 Execution Protocol
@@ -88,6 +114,15 @@ For targeted questions ("Who spent the most?"), write a Python script that direc
 -----
 
 ## 🐍 Python Scripting Guidelines
+
+**CRITICAL: NO TEMPLATE REPORTS**
+- Your script MUST analyze the ACTUAL data from combined_data.json
+- NEVER generate placeholder or template content
+- Every number, name, and statistic in the report must come from the loaded data
+- If the data file cannot be loaded or is empty, the script must fail with an error
+- Before generating any report, verify you have real transactions by printing:
+  ```python
+  print(f"Analyzing {len(transactions_df)} real transactions from {len(cardholders)} cardholders")
 
 **EVERY Python script you write MUST adhere to the following template and rules.**
 
