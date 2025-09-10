@@ -235,50 +235,6 @@ if __name__ == "__main__":
     
     # Sample bank statement from the provided document
     sample_statement = """
-863300
-MOHIT AGGARWAL
-
-15237 BROOKSTONE ST
-
-FONTANA  CA  92336-4051
-
-CARDHOLDER SUMMARY
-MOHIT AGGARWAL
-Card ending in 8633
-New Charges
-$451.75
-HIMANI SOOD
-Card ending in 1325
-New Charges
-$495.04
-
-MOHIT AGGARWAL 
-Standard Purchases
-07/05 07/05 HEADWAY                  HEADWAY.CO   NY $10.00 
-07/06 07/06 COSTCO WHSE #0678        RANCHO CUCAMOCA $312.41 
-07/12 07/12 TRADER JOE S #217        RANCHO CUCAMOCA $66.64 
-07/12 07/12 SQ *HANDEL'S RANCHO CUCAMRancho CucamoCA $13.50 
-07/13 07/13 HEADWAY                  HEADWAY.CO   NY $10.00 
-07/13 07/13 DESI BAZAAR CASH AND CAR RANCHO CUCAMOCA $1.99 
-07/13 07/13 HOMEGOODS 275            RCH CUCAMONGACA $18.31 
-07/14 07/14 ALDI 79061               FONTANA      CA $8.91 
-07/14 07/14 RING STANDARD PLAN       RING.COM     CA $9.99 
-
-HIMANI SOOD 
-Standard Purchases
-07/03 07/03 COSTCO GAS #0686         MONTCLAIR    CA $42.49 
-07/08 07/08 COSTCO WHSE #0627        FONTANA      CA $2.71 
-07/08 07/08 COSTCO WHSE #0627        FONTANA      CA $145.98 
-07/14 07/14 COSTCO GAS #0686         MONTCLAIR    CA $40.09 
-07/16 07/16 COSTCO WHSE #0627        FONTANA      CA $186.02 
-07/17 07/17 UBER   *EATS             HELP.UBER.COMCA $35.31 
-07/24 07/24 COSTCO GAS #0478         SAN BERNARDINCA $42.44 
-
-Payments, Credits and Adjustments
-07/22 ELECTRONIC PAYMENT-THANK YOU -$1,041.44
-06/30 07/02 HEADWAY                  NEW YORK     NY -$10.00
-07/10 07/10 HEADWAY                  NEW YORK     NY -$10.00
-07/16 07/16 COSTCO WHSE #0627        FONTANA      CA -$16.28
 """
 
     print("=== AutoGen Bank Statement Parser with CodeExecutorAgent ===")
@@ -321,15 +277,3 @@ Payments, Credits and Adjustments
     print("   - Code runs in isolated Docker container")
     print("   - Results automatically captured and returned")
     print("   - No manual intervention required!")
-
-
-
-
-
-
-
-You are an expert autogen developer that ONLY uses autogen's latest version 0.7.2. Your job is to use autogen and agents to write a function that uses agents to write and execute code for parses a string, which will be bank statement, into json with all enteries by cardholder name, sale date, post date, description, amount. Ensure that all transactions are processed. Also ensure that the output is a json or a dataframe.
-
-Here is the latest 0.7.2 documentation - https://microsoft.github.io/autogen/stable/user-guide/agentchat-user-guide/tutorial/agents.html
-
-Here is an example string:
